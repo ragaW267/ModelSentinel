@@ -1,0 +1,589 @@
+<!DOCTYPE html>
+
+<html class="dark" lang="en"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>MODELVAULT // Client Console</title>
+<!-- Google Fonts & Material Symbols -->
+<link href="https://fonts.googleapis.com" rel="preconnect"/>
+<link crossorigin="" href="https://fonts.gstatic.com" rel="preconnect"/>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&amp;family=JetBrains+Mono:ital,wght@0,400;0,500;0,600;0,700;1,400&amp;family=Space+Grotesk:wght@500;600;700&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<!-- Tailwind CSS -->
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<script>
+    tailwind.config = {
+      darkMode: "class",
+      theme: {
+        extend: {
+          colors: {
+            app: {
+              bg: "#0d1117",
+              card: "#161b22",
+              subcard: "#0e131a",
+              hover: "#1f242c",
+              border: "#30363d",
+              muted: "#8b949e",
+              text: "#c9d1d9",
+              heading: "#f0f6fc",
+              emerald: "#2ea043",
+              "emerald-glow": "#3fb950",
+              crimson: "#f85149",
+              "crimson-bg": "rgba(248, 81, 73, 0.12)",
+              amber: "#d29922",
+              "amber-bg": "rgba(210, 153, 34, 0.12)",
+              cyan: "#58a6ff"
+            }
+          },
+          fontFamily: {
+            sans: ["Inter", "sans-serif"],
+            mono: ["JetBrains Mono", "monospace"],
+            display: ["Space Grotesk", "sans-serif"]
+          }
+        }
+      }
+    };
+  </script>
+<style>
+    .material-symbols-outlined {
+      font-size: 16px;
+      line-height: 1;
+      vertical-align: middle;
+    }
+    ::-webkit-scrollbar {
+      width: 6px;
+      height: 6px;
+    }
+    ::-webkit-scrollbar-track {
+      background: #0d1117;
+    }
+    ::-webkit-scrollbar-thumb {
+      background: #30363d;
+      border-radius: 3px;
+    }
+    ::-webkit-scrollbar-thumb:hover {
+      background: #484f58;
+    }
+  </style>
+</head>
+<body class="bg-app-bg text-app-text font-sans antialiased min-h-screen flex flex-col selection:bg-app-emerald selection:text-white">
+<!-- 1. HEADER -->
+<header class="h-14 border-b border-app-border bg-app-card px-5 flex items-center justify-between sticky top-0 z-30">
+<!-- Left: Brand + Subtitle -->
+<div class="flex items-center space-x-3">
+<div class="w-8 h-8 rounded border border-app-border bg-app-subcard flex items-center justify-center text-app-emerald-glow">
+<span class="material-symbols-outlined text-[18px]">terminal</span>
+</div>
+<div>
+<div class="flex items-center space-x-2">
+<span class="font-display font-bold tracking-tight text-app-heading text-[15px]">MODELVAULT</span>
+<span class="text-app-border">|</span>
+<span class="font-display font-medium text-app-heading text-[14px]">Client Console</span>
+</div>
+<div class="text-[11px] text-app-muted font-mono leading-none">Protected API Client (Laptop 1)</div>
+</div>
+</div>
+<!-- Right: Connection Status & Session -->
+<div class="flex items-center space-x-4 font-mono text-xs">
+<div class="flex items-center space-x-1.5 px-2.5 py-1 rounded bg-emerald-950/40 border border-emerald-900/60 text-app-emerald-glow">
+<span class="w-2 h-2 rounded-full bg-app-emerald-glow animate-pulse"></span>
+<span class="font-medium">ModelVault Connected</span>
+</div>
+<div class="text-app-muted">
+        Session: <span class="text-app-heading font-semibold">S-1042</span>
+</div>
+</div>
+</header>
+<!-- MAIN OPERATIONAL WORKSPACE (Two upper columns + Lower Stream) -->
+<main class="flex-1 p-4 lg:p-6 space-y-5 max-w-[1520px] w-full mx-auto">
+<!-- 2. UPPER SECTION: TWO CLEAN COLUMNS -->
+<div class="grid grid-cols-1 lg:grid-cols-12 gap-5 items-start">
+<!-- LEFT COLUMN: API REQUEST BUILDER (7 Cols) -->
+<section class="lg:col-span-7 bg-app-card border border-app-border rounded-lg shadow-sm flex flex-col">
+<!-- Card Header -->
+<div class="px-4 py-3 border-b border-app-border flex items-center justify-between bg-app-card/60">
+<div class="flex items-center space-x-2.5">
+<span class="material-symbols-outlined text-app-muted">tune</span>
+<h2 class="font-display font-semibold text-sm tracking-wide text-app-heading uppercase">API Request</h2>
+<span class="text-[11px] font-mono text-app-muted">Vector Dim: 9</span>
+</div>
+<!-- Compact Demo Mode Toggle -->
+<div class="flex items-center space-x-1.5 bg-app-subcard p-1 rounded border border-app-border text-xs font-mono">
+<span class="text-[11px] text-app-muted px-1">Mode:</span>
+<button class="px-2.5 py-0.5 rounded text-xs transition bg-app-card text-app-emerald-glow font-medium border border-app-border shadow-xs" id="mode-normal-btn" onclick="setDemoMode('normal')">
+              Normal User
+            </button>
+<button class="px-2.5 py-0.5 rounded text-xs transition text-app-muted hover:text-app-heading" id="mode-attack-btn" onclick="setDemoMode('attack')">
+              Extraction Attack
+            </button>
+</div>
+</div>
+<div class="p-4 space-y-4">
+<!-- Method & Endpoint Bar -->
+<div class="flex items-center space-x-2">
+<span class="px-2.5 py-1.5 rounded bg-app-subcard text-app-emerald-glow font-mono font-bold text-xs border border-app-border">
+              POST
+            </span>
+<div class="flex-1 flex items-center bg-app-subcard border border-app-border rounded px-3 py-1.5 focus-within:border-app-muted transition">
+<span class="font-mono text-xs text-app-heading flex-1 select-all" id="endpoint-url">http://192.168.1.105:8000/api/v1/predict</span>
+<span class="flex items-center space-x-1 text-[11px] font-mono text-app-emerald-glow ml-2">
+<span class="w-1.5 h-1.5 rounded-full bg-app-emerald-glow inline-block"></span>
+<span>CONNECTED</span>
+</span>
+</div>
+<button class="p-1.5 text-app-muted hover:text-app-heading bg-app-subcard border border-app-border rounded hover:bg-app-hover transition" onclick="copyEndpoint()" title="Copy endpoint">
+<span class="material-symbols-outlined">content_copy</span>
+</button>
+</div>
+<!-- Extraction Attack Minimal Options Bar (shown only in attack mode) -->
+<div class="hidden p-2.5 rounded bg-app-crimson-bg border border-app-crimson/30 flex-wrap items-center justify-between gap-2 text-xs font-mono" id="attack-settings-bar">
+<div class="flex items-center space-x-3">
+<div class="flex items-center space-x-1 text-app-crimson font-medium">
+<span class="material-symbols-outlined">bolt</span>
+<span>ATTACK ENGAGED:</span>
+</div>
+<div class="flex items-center space-x-1">
+<span class="text-app-muted">Requests:</span>
+<span class="text-app-heading font-semibold bg-app-card px-1.5 py-0.5 rounded border border-app-border">100</span>
+</div>
+<div class="flex items-center space-x-1">
+<span class="text-app-muted">Intensity:</span>
+<div class="inline-flex rounded bg-app-card border border-app-border p-0.5 text-[11px]">
+<span class="px-1.5 text-app-muted">LOW</span>
+<span class="px-1.5 bg-app-hover text-app-crimson font-bold rounded">MED</span>
+<span class="px-1.5 text-app-muted">HIGH</span>
+</div>
+</div>
+</div>
+<button class="px-2.5 py-1 bg-app-crimson hover:bg-red-500 text-white font-medium rounded text-[11px] transition flex items-center space-x-1" id="attack-trigger-btn" onclick="triggerAttackBurst()">
+<span class="material-symbols-outlined text-[14px]">play_arrow</span>
+<span id="attack-trigger-text">DISPATCH BURST</span>
+</button>
+</div>
+<!-- Feature Inputs Grid (3x3 simple numeric inputs) -->
+<div>
+<div class="flex justify-between items-center mb-2">
+<label class="font-mono text-xs font-medium text-app-muted uppercase tracking-wider">Input Features (Float32 Tensor)</label>
+<span class="text-[11px] font-mono text-app-muted">Range: 0.00 – 10.00</span>
+</div>
+<div class="grid grid-cols-3 gap-2.5" id="feature-grid">
+<!-- Feature 01 to 09 generated cleanly -->
+</div>
+</div>
+<!-- Side-by-Side: Action Controls & Formatted JSON Preview -->
+<div class="grid grid-cols-1 md:grid-cols-12 gap-3 pt-1">
+<!-- Left Controls -->
+<div class="md:col-span-4 flex flex-col justify-between space-y-2">
+<button class="w-full h-10 bg-app-emerald hover:bg-app-emerald-glow text-white font-mono font-semibold text-xs tracking-wider rounded transition flex items-center justify-center space-x-2 shadow-sm active:scale-[0.99]" id="btn-send" onclick="sendApiRequest()">
+<span class="material-symbols-outlined text-[16px]">send</span>
+<span>SEND REQUEST</span>
+</button>
+<div class="grid grid-cols-2 gap-2">
+<button class="h-8 bg-app-subcard hover:bg-app-hover text-app-text font-mono text-xs rounded border border-app-border transition flex items-center justify-center space-x-1" onclick="randomizeInputs()">
+<span class="material-symbols-outlined text-[14px]">shuffle</span>
+<span>RANDOM</span>
+</button>
+<button class="h-8 bg-app-subcard hover:bg-app-hover text-app-muted hover:text-app-text font-mono text-xs rounded border border-app-border transition flex items-center justify-center" onclick="resetInputs()">
+<span>RESET</span>
+</button>
+</div>
+</div>
+<!-- Compact Formatted JSON Preview -->
+<div class="md:col-span-8 bg-app-subcard border border-app-border rounded p-2.5 flex flex-col">
+<div class="flex justify-between items-center text-[10px] font-mono text-app-muted border-b border-app-border/70 pb-1 mb-1.5">
+<span>PAYLOAD (application/json)</span>
+<span class="text-app-emerald-glow">valid</span>
+</div>
+<pre class="font-mono text-[11px] text-app-text overflow-x-auto select-all leading-tight" id="json-request-preview">{\n  "features": [2.31, 4.72, 1.84, 6.13, 3.92, 5.21, 2.44, 7.18, 4.03]\n}</pre>
+</div>
+</div>
+</div>
+</section>
+<!-- RIGHT COLUMN: ARGUS RESPONSE & INSPECTOR (5 Cols) -->
+<section class="lg:col-span-5 bg-app-card border border-app-border rounded-lg shadow-sm flex flex-col">
+<!-- Card Header -->
+<div class="px-4 py-3 border-b border-app-border flex items-center justify-between bg-app-card/60">
+<div class="flex items-center space-x-2.5">
+<span class="material-symbols-outlined text-app-muted">query_stats</span>
+<h2 class="font-display font-semibold text-sm tracking-wide text-app-heading uppercase">Argus Response</h2>
+</div>
+<!-- Header Bar Stats -->
+<div class="flex items-center space-x-2 text-[11px] font-mono">
+<span class="text-app-muted">MODEL:</span>
+<span class="text-app-heading font-medium">ARGUS</span>
+<span class="text-app-border">|</span>
+<span class="flex items-center space-x-1 text-app-emerald-glow">
+<span class="w-1.5 h-1.5 rounded-full bg-app-emerald-glow"></span>
+<span>ONLINE</span>
+</span>
+<span class="text-app-border">|</span>
+<span class="text-app-muted">LATENCY:</span>
+<span class="text-app-heading font-semibold" id="res-latency">42 ms</span>
+</div>
+</div>
+<div class="p-4 space-y-4">
+<!-- Large Clear Central Model Prediction -->
+<div class="bg-app-subcard border border-app-border rounded-lg p-5 flex flex-col items-center justify-center text-center transition-all" id="prediction-hero-card">
+<span class="text-[10px] font-mono uppercase tracking-widest text-app-muted mb-1">INFERENCE RESULT</span>
+<div class="px-6 py-2 my-1 rounded border-2 border-app-emerald/50 bg-emerald-950/20 text-app-emerald-glow font-display font-bold text-2xl tracking-wider" id="prediction-badge">
+              CLASS 1
+            </div>
+<div class="mt-2 flex items-center space-x-2 font-mono text-xs">
+<span class="text-app-muted">Confidence:</span>
+<span class="text-app-heading font-bold text-sm" id="confidence-text">87.4%</span>
+</div>
+<!-- Subtle confidence meter -->
+<div class="w-48 bg-app-card h-1.5 rounded-full mt-2 overflow-hidden border border-app-border">
+<div class="bg-app-emerald h-full transition-all duration-300" id="confidence-meter-bar" style="width: 87.4%;"></div>
+</div>
+</div>
+<!-- Security Clearance Indicator Badge & Details -->
+<div class="p-3.5 rounded-lg border border-app-emerald/30 bg-emerald-950/20 space-y-2 transition-all" id="security-clearance-box">
+<div class="flex items-center justify-between">
+<span class="font-mono text-xs font-semibold text-app-muted uppercase">Security Clearance</span>
+<!-- Allowed vs Blocked Badge -->
+<span class="px-2.5 py-0.5 rounded text-xs font-mono font-bold bg-emerald-900/50 text-app-emerald-glow border border-app-emerald/40 flex items-center space-x-1" id="verdict-pill">
+<span class="material-symbols-outlined text-[14px]">check</span>
+<span id="verdict-pill-text">✓ ALLOWED</span>
+</span>
+</div>
+<div class="text-xs font-mono text-app-muted leading-relaxed" id="verdict-reason-block">
+<span class="text-app-emerald-glow font-medium">Verdict:</span> Query pattern normal. Sliding-window similarity within permissible bounds.
+            </div>
+<!-- Demo Quick Sample Switcher -->
+<div class="pt-2 border-t border-app-border/40 flex items-center justify-between text-[11px] font-mono">
+<span class="text-app-muted">Test clearance view:</span>
+<div class="space-x-1">
+<button class="px-2 py-0.5 bg-app-card hover:bg-app-hover text-app-emerald-glow rounded border border-app-border" onclick="applySamplePreset('allowed')">Sample Allowed</button>
+<button class="px-2 py-0.5 bg-app-card hover:bg-app-hover text-app-crimson rounded border border-app-border" onclick="applySamplePreset('blocked')">Sample Blocked</button>
+</div>
+</div>
+</div>
+<!-- Compact JSON Response View -->
+<div class="bg-app-subcard border border-app-border rounded p-2.5">
+<div class="flex justify-between items-center text-[10px] font-mono text-app-muted border-b border-app-border/70 pb-1 mb-1.5">
+<span>RESPONSE JSON</span>
+<span class="text-app-emerald-glow" id="res-status-code">200 OK</span>
+</div>
+<pre class="font-mono text-[11px] text-app-text select-all leading-snug" id="json-response-preview">{\n  "prediction": 1,\n  "confidence": 0.874,\n  "status": "allowed"\n}</pre>
+</div>
+</div>
+</section>
+</div>
+<!-- 3. LOWER SECTION: LIVE REQUEST STREAM -->
+<section class="bg-app-card border border-app-border rounded-lg shadow-sm overflow-hidden flex flex-col">
+<!-- Section Header -->
+<div class="px-4 py-3 border-b border-app-border flex items-center justify-between bg-app-card/60">
+<div class="flex items-center space-x-2.5">
+<span class="material-symbols-outlined text-app-muted">format_list_bulleted</span>
+<h2 class="font-display font-semibold text-sm tracking-wide text-app-heading uppercase">Live Request Stream</h2>
+<span class="text-[11px] font-mono text-app-muted" id="stream-count-badge">5 events logged</span>
+</div>
+<div class="flex items-center space-x-2">
+<button class="px-2 py-1 text-xs font-mono text-app-muted hover:text-app-heading rounded bg-app-subcard border border-app-border hover:bg-app-hover transition" onclick="clearStream()">
+            Clear
+          </button>
+</div>
+</div>
+<!-- Compact Clean Table (Only TIME | REQUEST ID | PREDICTION | CONFIDENCE | STATUS) -->
+<div class="overflow-x-auto">
+<table class="w-full text-left font-mono text-xs border-collapse">
+<thead class="bg-app-subcard border-b border-app-border text-app-muted text-[11px] uppercase tracking-wider">
+<tr>
+<th class="py-2.5 px-4 font-medium">TIME</th>
+<th class="py-2.5 px-4 font-medium">REQUEST ID</th>
+<th class="py-2.5 px-4 font-medium">PREDICTION</th>
+<th class="py-2.5 px-4 font-medium">CONFIDENCE</th>
+<th class="py-2.5 px-4 font-medium text-right">STATUS</th>
+</tr>
+</thead>
+<tbody class="divide-y divide-app-border/60 text-app-text" id="stream-table-body">
+<tr class="hover:bg-app-hover/50 transition">
+<td class="py-2 px-4 text-app-muted font-normal">10:42:34</td>
+<td class="py-2 px-4 text-app-heading font-medium">REQ-00424</td>
+<td class="py-2 px-4">CLASS 0</td>
+<td class="py-2 px-4">58.2%</td>
+<td class="py-2 px-4 text-right">
+<span class="inline-block px-2 py-0.5 rounded text-[11px] font-semibold bg-red-950/40 text-app-crimson border border-app-crimson/30">
+                  BLOCKED
+                </span>
+</td>
+</tr>
+<tr class="hover:bg-app-hover/50 transition">
+<td class="py-2 px-4 text-app-muted font-normal">10:42:33</td>
+<td class="py-2 px-4 text-app-heading font-medium">REQ-00423</td>
+<td class="py-2 px-4">CLASS 0</td>
+<td class="py-2 px-4">61.0%</td>
+<td class="py-2 px-4 text-right">
+<span class="inline-block px-2 py-0.5 rounded text-[11px] font-semibold bg-amber-950/40 text-app-amber border border-app-amber/30">
+                  MONITORED
+                </span>
+</td>
+</tr>
+<tr class="hover:bg-app-hover/50 transition">
+<td class="py-2 px-4 text-app-muted font-normal">10:42:32</td>
+<td class="py-2 px-4 text-app-heading font-medium">REQ-00422</td>
+<td class="py-2 px-4">CLASS 1</td>
+<td class="py-2 px-4">84.2%</td>
+<td class="py-2 px-4 text-right">
+<span class="inline-block px-2 py-0.5 rounded text-[11px] font-semibold bg-emerald-950/40 text-app-emerald-glow border border-app-emerald/30">
+                  ALLOWED
+                </span>
+</td>
+</tr>
+<tr class="hover:bg-app-hover/50 transition">
+<td class="py-2 px-4 text-app-muted font-normal">10:42:31</td>
+<td class="py-2 px-4 text-app-heading font-medium">REQ-00421</td>
+<td class="py-2 px-4">CLASS 1</td>
+<td class="py-2 px-4">87.4%</td>
+<td class="py-2 px-4 text-right">
+<span class="inline-block px-2 py-0.5 rounded text-[11px] font-semibold bg-emerald-950/40 text-app-emerald-glow border border-app-emerald/30">
+                  ALLOWED
+                </span>
+</td>
+</tr>
+<tr class="hover:bg-app-hover/50 transition">
+<td class="py-2 px-4 text-app-muted font-normal">10:42:28</td>
+<td class="py-2 px-4 text-app-heading font-medium">REQ-00420</td>
+<td class="py-2 px-4">CLASS 1</td>
+<td class="py-2 px-4">91.1%</td>
+<td class="py-2 px-4 text-right">
+<span class="inline-block px-2 py-0.5 rounded text-[11px] font-semibold bg-emerald-950/40 text-app-emerald-glow border border-app-emerald/30">
+                  ALLOWED
+                </span>
+</td>
+</tr>
+</tbody>
+</table>
+</div>
+</section>
+</main>
+<!-- JAVASCRIPT CONTROLLER (Interactive & Lightweight) -->
+<script>
+    // State
+    const defaultFeatures = [2.31, 4.72, 1.84, 6.13, 3.92, 5.21, 2.44, 7.18, 4.03];
+    let currentFeatures = [...defaultFeatures];
+    let currentMode = 'normal'; // 'normal' | 'attack'
+    let requestSeq = 425;
+    let eventCount = 5;
+
+    // Render 3x3 numeric grid
+    function initFeatureGrid() {
+      const grid = document.getElementById('feature-grid');
+      grid.innerHTML = '';
+      currentFeatures.forEach((val, i) => {
+        const num = String(i + 1).padStart(2, '0');
+        const box = document.createElement('div');
+        box.className = 'bg-app-subcard border border-app-border rounded p-1.5 focus-within:border-app-emerald transition';
+        box.innerHTML = `
+          <div class="flex items-center justify-between text-[11px] font-mono text-app-muted mb-0.5">
+            <span>F-${num}</span>
+          </div>
+          <input 
+            type="number" 
+            step="0.01" 
+            value="${val.toFixed(2)}"
+            id="input-f-${i}"
+            oninput="handleFeatureChange(${i}, this.value)"
+            class="w-full bg-transparent text-app-heading font-mono text-xs font-semibold focus:outline-none border-0 p-0 text-left"
+          />
+        `;
+        grid.appendChild(box);
+      });
+      updateJsonRequestPreview();
+    }
+
+    function handleFeatureChange(idx, val) {
+      const parsed = parseFloat(val);
+      currentFeatures[idx] = isNaN(parsed) ? 0 : parsed;
+      updateJsonRequestPreview();
+    }
+
+    function updateJsonRequestPreview() {
+      const formatted = currentFeatures.map(f => Number(f.toFixed(2)));
+      const payload = { features: formatted };
+      document.getElementById('json-request-preview').textContent = JSON.stringify(payload, null, 2);
+    }
+
+    function randomizeInputs() {
+      currentFeatures = currentFeatures.map(() => +(Math.random() * 9.8).toFixed(2));
+      currentFeatures.forEach((val, i) => {
+        const el = document.getElementById(`input-f-${i}`);
+        if (el) el.value = val.toFixed(2);
+      });
+      updateJsonRequestPreview();
+    }
+
+    function resetInputs() {
+      currentFeatures = [...defaultFeatures];
+      currentFeatures.forEach((val, i) => {
+        const el = document.getElementById(`input-f-${i}`);
+        if (el) el.value = val.toFixed(2);
+      });
+      updateJsonRequestPreview();
+    }
+
+    // Mode Selector
+    function setDemoMode(mode) {
+      currentMode = mode;
+      const normalBtn = document.getElementById('mode-normal-btn');
+      const attackBtn = document.getElementById('mode-attack-btn');
+      const attackBar = document.getElementById('attack-settings-bar');
+
+      if (mode === 'normal') {
+        normalBtn.className = 'px-2.5 py-0.5 rounded text-xs transition bg-app-card text-app-emerald-glow font-medium border border-app-border shadow-xs';
+        attackBtn.className = 'px-2.5 py-0.5 rounded text-xs transition text-app-muted hover:text-app-heading';
+        attackBar.classList.add('hidden');
+        applySamplePreset('allowed');
+      } else {
+        attackBtn.className = 'px-2.5 py-0.5 rounded text-xs transition bg-app-crimson/20 text-app-crimson font-medium border border-app-crimson/40 shadow-xs';
+        normalBtn.className = 'px-2.5 py-0.5 rounded text-xs transition text-app-muted hover:text-app-heading';
+        attackBar.classList.remove('hidden');
+        applySamplePreset('blocked');
+      }
+    }
+
+    // Apply allowed or blocked visual preset to the response inspector
+    function applySamplePreset(type) {
+      const predBadge = document.getElementById('prediction-badge');
+      const confText = document.getElementById('confidence-text');
+      const confBar = document.getElementById('confidence-meter-bar');
+      const verdictPill = document.getElementById('verdict-pill');
+      const verdictPillText = document.getElementById('verdict-pill-text');
+      const verdictReason = document.getElementById('verdict-reason-block');
+      const clearanceBox = document.getElementById('security-clearance-box');
+      const heroCard = document.getElementById('prediction-hero-card');
+      const jsonRes = document.getElementById('json-response-preview');
+      const statusCode = document.getElementById('res-status-code');
+
+      if (type === 'allowed') {
+        heroCard.className = 'bg-app-subcard border border-app-border rounded-lg p-5 flex flex-col items-center justify-center text-center transition-all';
+        predBadge.className = 'px-6 py-2 my-1 rounded border-2 border-app-emerald/50 bg-emerald-950/20 text-app-emerald-glow font-display font-bold text-2xl tracking-wider';
+        predBadge.textContent = 'CLASS 1';
+        confText.textContent = '87.4%';
+        confBar.className = 'bg-app-emerald h-full transition-all duration-300';
+        confBar.style.width = '87.4%';
+
+        clearanceBox.className = 'p-3.5 rounded-lg border border-app-emerald/30 bg-emerald-950/20 space-y-2 transition-all';
+        verdictPill.className = 'px-2.5 py-0.5 rounded text-xs font-mono font-bold bg-emerald-900/50 text-app-emerald-glow border border-app-emerald/40 flex items-center space-x-1';
+        verdictPillText.textContent = '✓ ALLOWED';
+        verdictReason.innerHTML = '<span class="text-app-emerald-glow font-medium">Verdict:</span> Query pattern normal. Sliding-window similarity within permissible bounds.';
+
+        statusCode.textContent = '200 OK';
+        statusCode.className = 'text-app-emerald-glow';
+
+        jsonRes.textContent = JSON.stringify({
+          prediction: 1,
+          confidence: 0.874,
+          status: "allowed"
+        }, null, 2);
+      } else {
+        heroCard.className = 'bg-app-subcard border border-app-crimson/40 rounded-lg p-5 flex flex-col items-center justify-center text-center transition-all';
+        predBadge.className = 'px-6 py-2 my-1 rounded border-2 border-app-crimson/60 bg-red-950/30 text-app-crimson font-display font-bold text-2xl tracking-wider';
+        predBadge.textContent = 'SUPPRESSED';
+        confText.textContent = '94.8%';
+        confBar.className = 'bg-app-crimson h-full transition-all duration-300';
+        confBar.style.width = '94.8%';
+
+        clearanceBox.className = 'p-3.5 rounded-lg border border-app-crimson/40 bg-red-950/20 space-y-2 transition-all';
+        verdictPill.className = 'px-2.5 py-0.5 rounded text-xs font-mono font-bold bg-red-900/50 text-app-crimson border border-app-crimson/50 flex items-center space-x-1';
+        verdictPillText.textContent = '✕ BLOCKED';
+        verdictReason.innerHTML = '<span class="text-app-crimson font-medium">Reason:</span> Suspected model extraction. High-density boundary probe detected. <span class="font-bold text-app-heading">Risk: 91 / 100</span>.';
+
+        statusCode.textContent = '403 FORBIDDEN';
+        statusCode.className = 'text-app-crimson';
+
+        jsonRes.textContent = JSON.stringify({
+          error: "BLOCKED_BY_GATEWAY",
+          reason: "Suspected model extraction",
+          risk_score: 91,
+          status: "blocked"
+        }, null, 2);
+      }
+    }
+
+    // Send API Request Simulator
+    function sendApiRequest() {
+      const btn = document.getElementById('btn-send');
+      btn.classList.add('opacity-75', 'cursor-not-allowed');
+      btn.innerHTML = '<span class="material-symbols-outlined text-[16px] animate-spin">sync</span><span>DISPATCHING...</span>';
+
+      setTimeout(() => {
+        btn.classList.remove('opacity-75', 'cursor-not-allowed');
+        btn.innerHTML = '<span class="material-symbols-outlined text-[16px]">send</span><span>SEND REQUEST</span>';
+
+        const isAttack = currentMode === 'attack';
+        const simulatedLatency = (35 + Math.floor(Math.random() * 20));
+        document.getElementById('res-latency').textContent = `${simulatedLatency} ms`;
+
+        const now = new Date();
+        const timeStr = `${String(now.getHours()).padStart(2, '0')}:${String(now.getMinutes()).padStart(2, '0')}:${String(now.getSeconds()).padStart(2, '0')}`;
+        const reqId = `REQ-00${requestSeq++}`;
+        
+        let pred, conf, statusPill;
+
+        if (isAttack) {
+          applySamplePreset('blocked');
+          pred = 'CLASS 0';
+          conf = (55 + Math.random() * 15).toFixed(1) + '%';
+          statusPill = '<span class="inline-block px-2 py-0.5 rounded text-[11px] font-semibold bg-red-950/40 text-app-crimson border border-app-crimson/30">BLOCKED</span>';
+        } else {
+          applySamplePreset('allowed');
+          pred = 'CLASS 1';
+          conf = (80 + Math.random() * 15).toFixed(1) + '%';
+          statusPill = '<span class="inline-block px-2 py-0.5 rounded text-[11px] font-semibold bg-emerald-950/40 text-app-emerald-glow border border-app-emerald/30">ALLOWED</span>';
+        }
+
+        // Prepend to Live Request Stream Table
+        const tbody = document.getElementById('stream-table-body');
+        const row = document.createElement('tr');
+        row.className = 'hover:bg-app-hover/50 transition bg-app-card/40';
+        row.innerHTML = `
+          <td class="py-2 px-4 text-app-muted font-normal">${timeStr}</td>
+          <td class="py-2 px-4 text-app-heading font-medium">${reqId}</td>
+          <td class="py-2 px-4">${pred}</td>
+          <td class="py-2 px-4">${conf}</td>
+          <td class="py-2 px-4 text-right">${statusPill}</td>
+        `;
+        tbody.insertBefore(row, tbody.firstChild);
+
+        eventCount++;
+        document.getElementById('stream-count-badge').textContent = `${eventCount} events logged`;
+      }, 350);
+    }
+
+    // Mini Attack Burst trigger
+    function triggerAttackBurst() {
+      let bursts = 0;
+      const attackBtn = document.getElementById('attack-trigger-btn');
+      attackBtn.disabled = true;
+      attackBtn.classList.add('opacity-60');
+
+      const interval = setInterval(() => {
+        sendApiRequest();
+        bursts++;
+        if (bursts >= 3) {
+          clearInterval(interval);
+          attackBtn.disabled = false;
+          attackBtn.classList.remove('opacity-60');
+        }
+      }, 500);
+    }
+
+    function clearStream() {
+      document.getElementById('stream-table-body').innerHTML = '';
+      eventCount = 0;
+      document.getElementById('stream-count-badge').textContent = '0 events logged';
+    }
+
+    function copyEndpoint() {
+      const url = document.getElementById('endpoint-url').textContent;
+      navigator.clipboard.writeText(url);
+    }
+
+    // Initialize on page load
+    window.addEventListener('DOMContentLoaded', () => {
+      initFeatureGrid();
+    });
+  </script>
+</body></html>

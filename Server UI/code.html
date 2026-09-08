@@ -1,0 +1,538 @@
+<!DOCTYPE html>
+
+<html class="dark" lang="en"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>ModelVault - Security Operations Console</title>
+<link href="https://fonts.googleapis.com" rel="preconnect"/>
+<link crossorigin="" href="https://fonts.gstatic.com" rel="preconnect"/>
+<link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;700&amp;family=Inter:wght@400;500;700&amp;family=JetBrains+Mono:wght@400;500;700&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<script>tailwind.config = {darkMode: "class", theme: {extend: {colors: {app: {bg: "#f7f7f5", card: "#ffffff", border: "#e5e5e3", borderDark: "#d1d1cf", text: "#1c1c1e", muted: "#636366", dim: "#8e8e93", red: "#dc2626", redBg: "#fef2f2", amber: "#d97706", amberBg: "#fffbeb", green: "#16a34a", greenBg: "#f0fdf4", blue: "#2563eb", blueBg: "#eff6ff"}, "on-secondary": "#003824", "surface-tint": "#4cd7f6", "on-error": "#690005", "primary-fixed": "#acedff", "surface-container": "#1c2027", "on-primary-fixed": "#001f26", "inverse-primary": "#00687a", "on-tertiary": "#67001b", "on-primary-fixed-variant": "#004e5c", "tertiary-fixed": "#ffdadb", "tertiary-fixed-dim": "#ffb2b7", "on-tertiary-fixed-variant": "#92002a", "surface-bright": "#353941", "inverse-surface": "#dfe2ed", "outline-variant": "#3d494c", "surface-container-high": "#262a32", "surface-dim": "#0f131b", "on-primary-container": "#00424f", "secondary-fixed": "#6ffbbe", background: "#0f131b", "secondary-fixed-dim": "#4edea3", "on-primary": "#003640", surface: "#0f131b", "error-container": "#93000a", "tertiary-container": "#ff7f8b", "surface-container-highest": "#31353d", "inverse-on-surface": "#2d3038", "on-secondary-fixed-variant": "#005236", secondary: "#4edea3", "surface-container-lowest": "#0a0e15", "on-secondary-fixed": "#002113", "on-error-container": "#ffdad6", "surface-variant": "#31353d", "on-background": "#dfe2ed", "primary-container": "#06b6d4", tertiary: "#ffb2b7", outline: "#869397", "on-secondary-container": "#00311f", "on-surface": "#dfe2ed", "surface-container-low": "#181c23", "secondary-container": "#00a572", "primary-fixed-dim": "#4cd7f6", primary: "#4cd7f6", error: "#ffb4ab", "on-surface-variant": "#bcc9cd", "on-tertiary-fixed": "#40000d", "on-tertiary-container": "#7d0023"}, fontFamily: {sans: ["Inter", "-apple-system", "BlinkMacSystemFont", "Segoe UI", "Roboto", "sans-serif"], mono: ["JetBrains Mono", "IBM Plex Mono", "SFMono-Regular", "Menlo", "monospace"], "body-md": ["Inter"], "title-sm": ["Inter"], "headline-md": ["Plus Jakarta Sans"], "display-hero": ["Plus Jakarta Sans"], "mono-sm": ["JetBrains Mono"], "headline-lg-mobile": ["Plus Jakarta Sans"], "mono-md": ["JetBrains Mono"], "label-caps": ["JetBrains Mono"], "body-sm": ["Inter"], "mono-lg": ["JetBrains Mono"], "headline-lg": ["Plus Jakarta Sans"], "body-lg": ["Inter"], "title-lg": ["Inter"], "headline-sm": ["Plus Jakarta Sans"]}, fontSize: {"body-md": ["13px", {lineHeight: "18px", letterSpacing: "0em", fontWeight: "400"}], "title-sm": ["14px", {lineHeight: "20px", letterSpacing: "0em", fontWeight: "500"}], "headline-md": ["22px", {lineHeight: "28px", letterSpacing: "-0.015em", fontWeight: "600"}], "display-hero": ["40px", {lineHeight: "48px", letterSpacing: "-0.025em", fontWeight: "700"}], "mono-sm": ["11px", {lineHeight: "14px", letterSpacing: "0.02em", fontWeight: "400"}], "headline-lg-mobile": ["24px", {lineHeight: "32px", letterSpacing: "-0.015em", fontWeight: "600"}], "mono-md": ["12px", {lineHeight: "16px", letterSpacing: "0em", fontWeight: "400"}], "label-caps": ["10px", {lineHeight: "12px", letterSpacing: "0.08em", fontWeight: "700"}], "body-sm": ["12px", {lineHeight: "16px", letterSpacing: "0.01em", fontWeight: "400"}], "mono-lg": ["14px", {lineHeight: "20px", letterSpacing: "-0.01em", fontWeight: "500"}], "headline-lg": ["32px", {lineHeight: "40px", letterSpacing: "-0.02em", fontWeight: "600"}], "body-lg": ["15px", {lineHeight: "24px", letterSpacing: "0em", fontWeight: "400"}], "title-lg": ["16px", {lineHeight: "22px", letterSpacing: "-0.005em", fontWeight: "600"}], "headline-sm": ["18px", {lineHeight: "24px", letterSpacing: "-0.01em", fontWeight: "600"}]}, spacing: {"space-md": "0.75rem", "gutter-compact": "0.75rem", "space-sm": "0.5rem", "gutter-expanded": "1.5rem", "space-2xl": "2rem", "gutter-default": "1rem", "space-2xs": "0.125rem", "space-3xl": "3rem", "space-xs": "0.25rem", "space-xl": "1.5rem", "space-lg": "1.25rem", "space-base": "1rem"}, borderRadius: {DEFAULT: "0.125rem", lg: "0.25rem", xl: "0.5rem", full: "0.75rem"}}}};</script>
+<style>
+    @layer base {
+      html, body { margin: 0; padding: 0; }
+      body { background-color: #f7f7f5; color: #1c1c1e; }
+    }
+    ::-webkit-scrollbar { width: 5px; height: 5px; }
+    ::-webkit-scrollbar-track { background: #f7f7f5; }
+    ::-webkit-scrollbar-thumb { background: #d1d1cf; border-radius: 2px; }
+    ::-webkit-scrollbar-thumb:hover { background: #a8a8a6; }
+  </style>
+</head>
+<body class="bg-app-bg text-app-text font-sans antialiased min-h-screen flex text-[13px] leading-normal selection:bg-gray-200">
+<!-- 1. LEFT SIDEBAR (Utilitarian tool chrome ~200px) -->
+<aside class="w-52 flex-shrink-0 bg-white border-r border-app-border flex flex-col justify-between select-none">
+<div>
+<!-- Brand Box -->
+<div class="h-12 px-3.5 border-b border-app-border flex flex-col justify-center">
+<div class="flex items-center gap-1.5">
+<span class="font-bold text-xs tracking-wider text-app-text">MODELVAULT</span>
+</div>
+<div class="text-[11px] text-app-muted">Security Gateway v2.4</div>
+</div>
+<!-- Navigation links -->
+<div class="p-2 space-y-4">
+<nav class="space-y-0.5 text-xs">
+<!-- Overview (Active) -->
+<a class="flex items-center gap-2 px-2.5 py-1.5 rounded-[4px] bg-[#ebebe8] text-app-text font-medium" href="#">
+<span class="material-symbols-outlined text-[15px] text-app-text">dashboard</span>
+<span>Overview</span>
+</a>
+<!-- Requests -->
+<a class="flex items-center justify-between px-2.5 py-1.5 rounded-[4px] text-app-muted hover:text-app-text hover:bg-gray-100 transition-colors" href="#">
+<div class="flex items-center gap-2">
+<span class="material-symbols-outlined text-[15px] text-app-muted">swap_horiz</span>
+<span>Requests</span>
+</div>
+<span class="font-mono text-[10px] text-app-dim">12.4k</span>
+</a>
+<!-- Sessions -->
+<a class="flex items-center justify-between px-2.5 py-1.5 rounded-[4px] text-app-muted hover:text-app-text hover:bg-gray-100 transition-colors" href="#">
+<div class="flex items-center gap-2">
+<span class="material-symbols-outlined text-[15px] text-app-muted">devices</span>
+<span>Sessions</span>
+</div>
+<span class="font-mono text-[10px] text-app-dim">37</span>
+</a>
+<!-- Security Events -->
+<a class="flex items-center justify-between px-2.5 py-1.5 rounded-[4px] text-app-muted hover:text-app-text hover:bg-gray-100 transition-colors" href="#">
+<div class="flex items-center gap-2">
+<span class="material-symbols-outlined text-[15px] text-app-red">shield_with_heart</span>
+<span class="text-app-red font-medium">Security Events</span>
+</div>
+<span class="font-mono text-[10px] font-semibold px-1 py-0.2 bg-app-redBg text-app-red rounded-[2px] border border-red-200">1</span>
+</a>
+<!-- Model Config -->
+<a class="flex items-center gap-2 px-2.5 py-1.5 rounded-[4px] text-app-muted hover:text-app-text hover:bg-gray-100 transition-colors" href="#">
+<span class="material-symbols-outlined text-[15px] text-app-muted">tune</span>
+<span>Model Config</span>
+</a>
+</nav>
+<!-- Enforcement Settings Summary -->
+<div class="pt-2 border-t border-app-border">
+<div class="px-2 pb-1.5 text-[10px] uppercase font-semibold text-app-dim tracking-wider">
+            Active Filters
+          </div>
+<div class="px-2 py-0.5 space-y-1 text-[11px] font-mono">
+<div class="flex justify-between">
+<span class="text-app-muted">Boundary:</span>
+<span class="font-medium text-app-text">Strict (90+)</span>
+</div>
+<div class="flex justify-between">
+<span class="text-app-muted">Embedding:</span>
+<span class="font-medium text-app-text">Cosine</span>
+</div>
+<div class="flex justify-between">
+<span class="text-app-muted">Rate Gate:</span>
+<span class="font-medium text-app-text">Adaptive</span>
+</div>
+</div>
+</div>
+</div>
+</div>
+<!-- Bottom system status widget (Utilitarian) -->
+<div class="p-3 border-t border-app-border bg-[#fafaf8] text-[11px] space-y-1">
+<div class="flex items-center justify-between">
+<span class="text-app-muted">System:</span>
+<span class="flex items-center gap-1.5 font-medium text-app-green">
+<span class="w-1.5 h-1.5 rounded-full bg-app-green"></span>
+          ONLINE
+        </span>
+</div>
+<div class="flex items-center justify-between">
+<span class="text-app-muted">ARGUS:</span>
+<span class="flex items-center gap-1.5 font-medium text-app-green">
+<span class="w-1.5 h-1.5 rounded-full bg-app-green"></span>
+          ONLINE
+        </span>
+</div>
+<div class="flex items-center justify-between font-mono text-[10px] text-app-muted pt-0.5 border-t border-app-border">
+<span>Target:</span>
+<span class="text-app-text">localhost:8000</span>
+</div>
+</div>
+</aside>
+<!-- MAIN WORKSPACE -->
+<div class="flex-1 flex flex-col min-w-0">
+<!-- TOP APPLICATION HEADER (48px tall, 1px bottom border) -->
+<header class="h-12 px-4 bg-white border-b border-app-border flex items-center justify-between select-none">
+<!-- Breadcrumb -->
+<div class="flex items-center gap-2 text-xs">
+<span class="font-semibold text-app-text">MODELVAULT</span>
+<span class="text-app-borderDark">/</span>
+<span class="text-app-muted">Overview</span>
+</div>
+<!-- Center / Right Telemetry & Controls -->
+<div class="flex items-center gap-3 text-xs">
+<div class="hidden md:flex items-center gap-2 font-mono text-[11px] text-app-muted border-r border-app-border pr-3">
+<span>Protected Model: <strong class="text-app-text font-medium">ARGUS (Random Forest Classifier)</strong></span>
+<span class="text-app-borderDark">|</span>
+<span>Env: <strong class="text-app-text font-medium">LOCAL-02</strong></span>
+<span class="text-app-borderDark">|</span>
+<span class="text-app-green font-medium">Online (4.2ms)</span>
+</div>
+<div class="flex items-center gap-1.5">
+<button class="px-2 py-1 rounded-[4px] border border-app-border bg-white text-app-text text-xs hover:bg-gray-50 flex items-center gap-1">
+<span class="material-symbols-outlined text-[13px] text-app-muted">sync</span>
+<span>Refresh (3s)</span>
+</button>
+<button class="px-2 py-1 rounded-[4px] border border-app-border bg-white text-app-text text-xs hover:bg-gray-50 flex items-center gap-1">
+<span>Filter</span>
+<span class="text-[9px] text-app-muted">▼</span>
+</button>
+<button class="px-2.5 py-1 rounded-[4px] border border-app-borderDark bg-white text-app-text text-xs font-medium hover:bg-gray-50">
+            Export Logs
+          </button>
+</div>
+</div>
+</header>
+<!-- CONTENT BODY -->
+<main class="flex-1 p-4 space-y-3.5 overflow-y-auto">
+<!-- PAGE TITLE & MODEL METADATA STRIP -->
+<div>
+<div class="flex items-baseline gap-2">
+<h1 class="text-base font-semibold text-app-text">Overview</h1>
+<span class="text-xs text-app-muted">Monitor API traffic, extraction probes, and automated mitigations.</span>
+</div>
+<!-- Admin Configuration Strip -->
+<div class="mt-2 px-3 py-1.5 bg-white rounded-[4px] border border-app-border text-[11px] font-mono text-app-muted flex flex-wrap items-center gap-y-1 gap-x-2">
+<span><strong class="text-app-text font-medium">Model:</strong> ARGUS Classifier</span>
+<span class="text-app-borderDark">|</span>
+<span><strong class="text-app-text font-medium">Endpoint:</strong> POST /api/v1/predict</span>
+<span class="text-app-borderDark">|</span>
+<span><strong class="text-app-text font-medium">Target Engine:</strong> Python Runtime (Laptop 2)</span>
+<span class="text-app-borderDark">|</span>
+<span><strong class="text-app-text font-medium">Defense Mode:</strong> <span class="text-app-amber font-semibold">Restrictive Hardblock</span></span>
+</div>
+</div>
+<!-- 3. METRICS ROW (Single continuous statistics strip with 1px border) -->
+<section class="grid grid-cols-4 bg-white rounded-[4px] border border-app-border divide-x divide-app-border">
+<!-- Requests -->
+<div class="px-3.5 py-2.5">
+<div class="text-[11px] text-app-muted font-medium">Requests</div>
+<div class="mt-0.5 flex items-baseline gap-2">
+<span class="font-mono text-xl font-semibold text-app-text">12,481</span>
+<span class="font-mono text-[11px] text-app-muted font-normal">+18.4% / 24h</span>
+</div>
+</div>
+<!-- Suspicious -->
+<div class="px-3.5 py-2.5">
+<div class="text-[11px] text-app-muted font-medium">Suspicious</div>
+<div class="mt-0.5 flex items-baseline gap-2">
+<span class="font-mono text-xl font-semibold text-app-text">327</span>
+<span class="font-mono text-[11px] text-app-amber font-medium">2.6% flagged</span>
+</div>
+</div>
+<!-- Blocked -->
+<div class="px-3.5 py-2.5">
+<div class="text-[11px] text-app-muted font-medium">Blocked</div>
+<div class="mt-0.5 flex items-baseline gap-2">
+<span class="font-mono text-xl font-semibold text-app-text">84</span>
+<span class="font-mono text-[11px] text-app-red font-medium">0.67% dropped</span>
+</div>
+</div>
+<!-- Current Extraction Risk -->
+<div class="px-3.5 py-2.5 bg-[#fefefe]">
+<div class="text-[11px] text-app-muted font-medium">Current Extraction Risk</div>
+<div class="mt-0.5 flex items-baseline gap-2">
+<span class="font-mono text-xl font-bold text-app-red">91</span>
+<span class="font-mono text-xs text-app-muted">/ 100</span>
+<span class="ml-auto font-mono text-[10px] font-bold text-app-red bg-app-redBg px-1.5 py-0.5 rounded-[2px] border border-red-200">CRITICAL</span>
+</div>
+</div>
+</section>
+<!-- 4. CURRENT SECURITY INCIDENT PANEL (Utilitarian & Practical) -->
+<section class="bg-white rounded-[4px] border border-app-border border-l-[3px] border-l-red-600 p-3.5">
+<div class="flex items-center justify-between pb-2.5 border-b border-app-border">
+<div class="flex items-center gap-2">
+<span class="text-xs font-bold text-app-red tracking-wide uppercase">SECURITY INCIDENT: MODEL EXTRACTION DETECTED</span>
+<span class="font-mono text-[10px] font-bold bg-app-redBg text-app-red px-1.5 py-0.5 rounded-[2px] border border-red-200">CRITICAL / SEV-1</span>
+</div>
+<span class="font-mono text-[11px] text-app-dim">ID: SEC-2025-0891</span>
+</div>
+<div class="mt-3 grid grid-cols-1 md:grid-cols-4 gap-3 text-xs">
+<div>
+<div class="text-app-muted text-[11px]">Target Session</div>
+<div class="font-mono font-medium text-app-text mt-0.5">S-1042 <span class="text-app-dim text-[11px]">(192.168.1.24)</span></div>
+</div>
+<div>
+<div class="text-app-muted text-[11px]">Calculated Risk Score</div>
+<div class="font-mono font-bold text-app-red mt-0.5">91 / 100</div>
+</div>
+<div>
+<div class="text-app-muted text-[11px]">Trigger Condition</div>
+<div class="text-app-text mt-0.5 font-mono text-[11px]">Boundary probing + cosine: 0.94</div>
+</div>
+<div>
+<div class="text-app-muted text-[11px]">Mitigation Action</div>
+<div class="text-app-red font-medium mt-0.5 font-mono text-[11px]">BLOCK (HTTP 403 - Terminated)</div>
+</div>
+</div>
+<!-- Realistic operator utility buttons -->
+<div class="mt-3 pt-2.5 border-t border-app-border flex items-center justify-between">
+<span class="text-app-muted text-[11px]">Enforcement rule: <span class="font-mono text-app-text">WAF-AI-094</span> (Circuit breaker tripped)</span>
+<div class="flex items-center gap-2">
+<button class="px-2.5 py-1 rounded-[4px] border border-app-border bg-white hover:bg-gray-50 text-app-text text-xs font-medium transition-colors">
+              Inspect Session Trace
+            </button>
+<button class="px-2.5 py-1 rounded-[4px] border border-app-border bg-white hover:bg-gray-50 text-app-text text-xs font-medium transition-colors">
+              Adjust Threshold
+            </button>
+<button class="px-2.5 py-1 rounded-[4px] border border-red-300 bg-app-redBg text-app-red hover:bg-red-100 text-xs font-medium transition-colors">
+              Revoke Token
+            </button>
+</div>
+</div>
+</section>
+<!-- 5. DETECTION SIGNALS & RISK HISTORY -->
+<div class="grid grid-cols-12 gap-3.5">
+<!-- Left: Detection Signals table (7 cols) -->
+<div class="col-span-12 lg:col-span-7 bg-white rounded-[4px] border border-app-border p-3.5">
+<div class="flex items-center justify-between pb-2 border-b border-app-border">
+<div class="font-semibold text-xs text-app-text">Detection Signals</div>
+<span class="text-[11px] text-app-muted">Model: ARGUS-v4</span>
+</div>
+<table class="w-full text-left text-xs mt-2 border-collapse">
+<thead>
+<tr class="text-[11px] text-app-muted border-b border-app-border">
+<th class="py-1.5 font-medium">Signal</th>
+<th class="py-1.5 font-medium">Score</th>
+<th class="py-1.5 font-medium w-28">Threshold</th>
+<th class="py-1.5 font-medium text-right">Assessment</th>
+</tr>
+</thead>
+<tbody class="divide-y divide-app-border font-mono text-xs">
+<tr>
+<td class="py-2 text-app-text font-sans font-medium">Behavioral Anomaly</td>
+<td class="py-2 text-app-amber font-semibold">87 / 100</td>
+<td class="py-2">
+<div class="w-24 bg-gray-100 rounded-[2px] h-1.5 overflow-hidden">
+<div class="bg-amber-500 h-full" style="width: 87%"></div>
+</div>
+</td>
+<td class="py-2 text-right font-sans text-app-muted text-[11px]">Automated request bursts</td>
+</tr>
+<tr>
+<td class="py-2 text-app-text font-sans font-medium">Query Similarity</td>
+<td class="py-2 text-app-amber font-semibold">81 / 100</td>
+<td class="py-2">
+<div class="w-24 bg-gray-100 rounded-[2px] h-1.5 overflow-hidden">
+<div class="bg-amber-500 h-full" style="width: 81%"></div>
+</div>
+</td>
+<td class="py-2 text-right font-sans text-app-muted text-[11px]">High cosine clustering</td>
+</tr>
+<tr>
+<td class="py-2 text-app-text font-sans font-medium">Boundary Probing</td>
+<td class="py-2 text-app-red font-semibold">89 / 100</td>
+<td class="py-2">
+<div class="w-24 bg-gray-100 rounded-[2px] h-1.5 overflow-hidden">
+<div class="bg-red-600 h-full" style="width: 89%"></div>
+</div>
+</td>
+<td class="py-2 text-right font-sans text-app-muted text-[11px]">Micro-perturbation flips</td>
+</tr>
+<tr>
+<td class="py-2 text-app-text font-sans font-medium">Latent Coverage</td>
+<td class="py-2 text-app-blue font-semibold">74 / 100</td>
+<td class="py-2">
+<div class="w-24 bg-gray-100 rounded-[2px] h-1.5 overflow-hidden">
+<div class="bg-blue-600 h-full" style="width: 74%"></div>
+</div>
+</td>
+<td class="py-2 text-right font-sans text-app-muted text-[11px]">Systematic feature sweep</td>
+</tr>
+</tbody>
+</table>
+</div>
+<!-- Right: Risk History (Last 30 Minutes) (5 cols) -->
+<div class="col-span-12 lg:col-span-5 bg-white rounded-[4px] border border-app-border p-3.5 flex flex-col justify-between">
+<div>
+<div class="flex items-center justify-between pb-1.5 border-b border-app-border">
+<span class="font-semibold text-xs text-app-text">Risk History (Last 30 Minutes)</span>
+<div class="flex items-center gap-3 text-[10px] text-app-muted font-mono">
+<span class="flex items-center gap-1"><span class="w-2 h-0.5 bg-red-600"></span> S-1042</span>
+<span class="flex items-center gap-1"><span class="w-2 h-0.5 border-t border-dashed border-gray-400"></span> Baseline</span>
+</div>
+</div>
+<!-- Time series chart SVG -->
+<div class="relative w-full h-32 bg-white rounded-[2px] mt-2 border border-app-border px-1 pt-1.5">
+<!-- Threshold marker line -->
+<div class="absolute inset-x-0 top-[22%] flex items-center justify-end pointer-events-none z-10 pr-1">
+<div class="w-full border-b border-dashed border-red-400"></div>
+<span class="font-mono text-[9px] text-red-600 bg-white px-1 ml-1 whitespace-nowrap">
+                  THRESHOLD ≥85
+                </span>
+</div>
+<svg class="w-full h-20" preserveaspectratio="none" viewbox="0 0 500 80">
+<!-- Grid Lines -->
+<line stroke="#f0f0ee" stroke-width="1" x1="0" x2="500" y1="20" y2="20"></line>
+<line stroke="#f0f0ee" stroke-width="1" x1="0" x2="500" y1="40" y2="40"></line>
+<line stroke="#f0f0ee" stroke-width="1" x1="0" x2="500" y1="60" y2="60"></line>
+<line stroke="#f0f0ee" stroke-width="1" x1="100" x2="100" y1="0" y2="80"></line>
+<line stroke="#f0f0ee" stroke-width="1" x1="200" x2="200" y1="0" y2="80"></line>
+<line stroke="#f0f0ee" stroke-width="1" x1="300" x2="300" y1="0" y2="80"></line>
+<line stroke="#f0f0ee" stroke-width="1" x1="400" x2="400" y1="0" y2="80"></line>
+<!-- Baseline Line -->
+<path d="M 25 72 L 120 71 L 215 72 L 310 70 L 405 71 L 475 70" fill="none" stroke="#d1d1cf" stroke-dasharray="2 2" stroke-width="1"></path>
+<!-- Risk trajectory polyline (12 -> 31 -> 47 -> 62 -> 78 -> 91) -->
+<polyline fill="none" points="25,72 120,58 215,44 310,31 405,18 475,8" stroke="#dc2626" stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5"></polyline>
+<!-- Points -->
+<circle cx="25" cy="72" fill="#16a34a" r="2.5"></circle>
+<circle cx="120" cy="58" fill="#16a34a" r="2.5"></circle>
+<circle cx="215" cy="44" fill="#2563eb" r="2.5"></circle>
+<circle cx="310" cy="31" fill="#d97706" r="2.5"></circle>
+<circle cx="405" cy="18" fill="#d97706" r="2.5"></circle>
+<circle cx="475" cy="8" fill="#dc2626" r="3"></circle>
+<!-- Data Labels -->
+<text fill="#636366" font-family="JetBrains Mono" font-size="8" text-anchor="middle" x="25" y="66">12</text>
+<text fill="#636366" font-family="JetBrains Mono" font-size="8" text-anchor="middle" x="120" y="52">31</text>
+<text fill="#636366" font-family="JetBrains Mono" font-size="8" text-anchor="middle" x="215" y="38">47</text>
+<text fill="#636366" font-family="JetBrains Mono" font-size="8" text-anchor="middle" x="310" y="25">62</text>
+<text fill="#636366" font-family="JetBrains Mono" font-size="8" text-anchor="middle" x="405" y="12">78</text>
+<text fill="#dc2626" font-family="JetBrains Mono" font-size="8" font-weight="bold" text-anchor="end" x="475" y="22">91 [CRITICAL]</text>
+</svg>
+<!-- X-Axis Timestamps -->
+<div class="h-5 border-t border-app-border flex justify-between items-center font-mono text-[9px] text-app-muted px-1 mt-1">
+<span>12:41:03</span>
+<span>12:41:05</span>
+<span>12:41:07</span>
+<span>12:41:09</span>
+<span class="text-app-red font-medium">12:41:11 (TERMINATED)</span>
+</div>
+</div>
+</div>
+<div class="text-[11px] text-app-muted pt-1 flex justify-between">
+<span>Progression: Exponential probing</span>
+<span class="font-mono text-app-text">Delta: +79 pts in 8s</span>
+</div>
+</div>
+</div>
+<!-- 6. LIVE API REQUEST LOG (Developer-Tooling Table: Postman / Charles style) -->
+<section class="bg-white rounded-[4px] border border-app-border p-3.5">
+<div class="flex flex-col sm:flex-row sm:items-center justify-between gap-2 pb-2.5 border-b border-app-border">
+<div class="flex items-center gap-2">
+<span class="font-semibold text-xs text-app-text">Live API Request Log</span>
+<span class="text-[11px] text-app-muted font-mono">(Inference Telemetry)</span>
+</div>
+<!-- Filter Toolbar -->
+<div class="flex items-center gap-2 text-xs">
+<input class="px-2 py-1 text-xs font-mono rounded-[4px] border border-app-border placeholder-app-dim focus:outline-none focus:border-app-borderDark w-48" placeholder="Filter by session or path..." type="text"/>
+<div class="flex items-center border border-app-border rounded-[4px] overflow-hidden text-[11px]">
+<button class="px-2 py-0.5 bg-[#ebebe8] font-medium text-app-text">All</button>
+<button class="px-2 py-0.5 bg-white text-app-muted hover:bg-gray-50 border-l border-app-border">Allowed (4)</button>
+<button class="px-2 py-0.5 bg-white text-app-red hover:bg-gray-50 border-l border-app-border">Blocked (1)</button>
+</div>
+</div>
+</div>
+<!-- DevTools Data Table -->
+<div class="overflow-x-auto">
+<table class="w-full text-left font-mono text-xs border-collapse">
+<thead>
+<tr class="text-[11px] text-app-muted border-b border-app-border bg-[#fafaf8]">
+<th class="py-1.5 px-2 font-medium">Time</th>
+<th class="py-1.5 px-2 font-medium">Method &amp; Path</th>
+<th class="py-1.5 px-2 font-medium">Session</th>
+<th class="py-1.5 px-2 font-medium">Risk</th>
+<th class="py-1.5 px-2 font-medium">Model Response</th>
+<th class="py-1.5 px-2 text-right font-medium">Action</th>
+</tr>
+</thead>
+<tbody class="divide-y divide-app-border text-[12px]">
+<!-- Row 1: ALLOW -->
+<tr class="hover:bg-gray-50">
+<td class="py-1.5 px-2 text-app-muted">12:41:03</td>
+<td class="py-1.5 px-2"><span class="text-app-muted">POST</span> /api/v1/predict</td>
+<td class="py-1.5 px-2 text-app-muted">S-1042</td>
+<td class="py-1.5 px-2 text-app-muted">14</td>
+<td class="py-1.5 px-2 text-app-muted">Class 0 (0.96)</td>
+<td class="py-1.5 px-2 text-right">
+<span class="text-app-green font-medium">ALLOW</span>
+</td>
+</tr>
+<!-- Row 2: ALLOW -->
+<tr class="hover:bg-gray-50">
+<td class="py-1.5 px-2 text-app-muted">12:41:05</td>
+<td class="py-1.5 px-2"><span class="text-app-muted">POST</span> /api/v1/predict</td>
+<td class="py-1.5 px-2 text-app-muted">S-1042</td>
+<td class="py-1.5 px-2 text-app-muted">31</td>
+<td class="py-1.5 px-2 text-app-muted">Class 0 (0.88)</td>
+<td class="py-1.5 px-2 text-right">
+<span class="text-app-green font-medium">ALLOW</span>
+</td>
+</tr>
+<!-- Row 3: LIMIT -->
+<tr class="hover:bg-amber-50/40">
+<td class="py-1.5 px-2 text-app-muted">12:41:07</td>
+<td class="py-1.5 px-2"><span class="text-app-muted">POST</span> /api/v1/predict</td>
+<td class="py-1.5 px-2 text-app-amber font-medium">S-1042</td>
+<td class="py-1.5 px-2 text-app-amber font-medium">47</td>
+<td class="py-1.5 px-2 text-app-muted">Class 0 (0.54)</td>
+<td class="py-1.5 px-2 text-right">
+<span class="text-app-amber font-medium">LIMIT</span>
+</td>
+</tr>
+<!-- Row 4: CHALLENGE -->
+<tr class="hover:bg-amber-50/40">
+<td class="py-1.5 px-2 text-app-muted">12:41:09</td>
+<td class="py-1.5 px-2"><span class="text-app-muted">POST</span> /api/v1/predict</td>
+<td class="py-1.5 px-2 text-app-amber font-semibold">S-1042</td>
+<td class="py-1.5 px-2 text-app-amber font-semibold">78</td>
+<td class="py-1.5 px-2 text-app-muted">Class 1 (0.72)</td>
+<td class="py-1.5 px-2 text-right">
+<span class="text-blue-600 font-medium">CHALLENGE</span>
+</td>
+</tr>
+<!-- Row 5: BLOCK -->
+<tr class="bg-red-50/70 hover:bg-red-50">
+<td class="py-1.5 px-2 text-app-red font-medium">12:41:11</td>
+<td class="py-1.5 px-2 font-medium text-app-red"><span class="font-bold">POST</span> /api/v1/predict</td>
+<td class="py-1.5 px-2 font-bold text-app-red">S-1042</td>
+<td class="py-1.5 px-2 font-bold text-app-red">91</td>
+<td class="py-1.5 px-2 text-app-muted font-sans italic">— (Circuit Breaker)</td>
+<td class="py-1.5 px-2 text-right">
+<span class="font-bold text-app-red">BLOCK</span>
+</td>
+</tr>
+</tbody>
+</table>
+</div>
+<div class="pt-2 border-t border-app-border flex items-center justify-between text-[11px] font-mono text-app-muted">
+<span>Displaying 5 of 12,481 events</span>
+<span class="text-app-dim">Endpoint latency avg: 3.8ms</span>
+</div>
+</section>
+<!-- 7. SECURITY EVENTS LOG (Compact Developer Log) -->
+<section class="bg-white rounded-[4px] border border-app-border p-3.5">
+<div class="flex items-center justify-between pb-2 border-b border-app-border">
+<div class="flex items-center gap-2">
+<span class="font-semibold text-xs text-app-text">Security Events Log</span>
+<span class="text-[11px] text-app-muted">(Automated Mitigations &amp; Alerts)</span>
+</div>
+<span class="text-[11px] font-mono text-app-dim">Level: All</span>
+</div>
+<div class="overflow-x-auto">
+<table class="w-full text-left text-xs border-collapse">
+<thead>
+<tr class="text-[11px] text-app-muted border-b border-app-border bg-[#fafaf8]">
+<th class="py-1.5 px-2 font-medium w-24">Time</th>
+<th class="py-1.5 px-2 font-medium">Event</th>
+<th class="py-1.5 px-2 font-medium w-24">Severity</th>
+<th class="py-1.5 px-2 font-medium">Details</th>
+</tr>
+</thead>
+<tbody class="divide-y divide-app-border font-mono text-xs">
+<tr class="hover:bg-red-50/30">
+<td class="py-1.5 px-2 text-app-muted">12:41:11</td>
+<td class="py-1.5 px-2 font-sans font-medium text-app-red">Model extraction detected</td>
+<td class="py-1.5 px-2">
+<span class="px-1.5 py-0.2 rounded-[2px] bg-red-100 text-app-red font-bold text-[10px]">CRITICAL</span>
+</td>
+<td class="py-1.5 px-2 text-app-text font-sans">Session S-1042 crossed threshold (91/100)</td>
+</tr>
+<tr class="hover:bg-amber-50/20">
+<td class="py-1.5 px-2 text-app-muted">12:41:09</td>
+<td class="py-1.5 px-2 font-sans font-medium text-app-amber">Boundary probing detected</td>
+<td class="py-1.5 px-2">
+<span class="px-1.5 py-0.2 rounded-[2px] bg-amber-100 text-app-amber font-semibold text-[10px]">HIGH</span>
+</td>
+<td class="py-1.5 px-2 text-app-text font-sans">Flip observed at L2 norm 0.014</td>
+</tr>
+<tr class="hover:bg-gray-50">
+<td class="py-1.5 px-2 text-app-muted">12:41:07</td>
+<td class="py-1.5 px-2 font-sans font-medium text-app-text">Abnormal query sequence</td>
+<td class="py-1.5 px-2">
+<span class="px-1.5 py-0.2 rounded-[2px] bg-gray-200 text-app-text font-medium text-[10px]">MEDIUM</span>
+</td>
+<td class="py-1.5 px-2 text-app-muted font-sans">Cosine density: 0.87</td>
+</tr>
+<tr class="hover:bg-gray-50">
+<td class="py-1.5 px-2 text-app-muted">12:40:58</td>
+<td class="py-1.5 px-2 font-sans font-medium text-app-text">Rapid feature sweep</td>
+<td class="py-1.5 px-2">
+<span class="px-1.5 py-0.2 rounded-[2px] bg-gray-100 text-app-muted font-medium text-[10px]">LOW</span>
+</td>
+<td class="py-1.5 px-2 text-app-muted font-sans">18 queries across latent partition</td>
+</tr>
+</tbody>
+</table>
+</div>
+</section>
+</main>
+<!-- SYSTEM FOOTER (Utilitarian Status Bar) -->
+<footer class="h-6 px-4 bg-white border-t border-app-border flex items-center justify-between font-mono text-[10px] text-app-muted select-none">
+<div class="flex items-center gap-3">
+<span>ModelVault Gateway</span>
+<span class="text-app-borderDark">|</span>
+<span>Cluster: ARGUS-PROD-01</span>
+<span class="text-app-borderDark">|</span>
+<span>Runtime: Python 3.11</span>
+</div>
+<div>
+<span>Status: Nominal</span>
+</div>
+</footer>
+</div>
+</body></html>
