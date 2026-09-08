@@ -461,15 +461,15 @@ function updateStats(s) {
   riskEl.textContent = Math.round(s.current_risk);
 
   const risk = s.current_risk;
-  if (risk >= 85) {
+  if (risk >= 46) {
     riskEl.className = 'font-mono text-xl font-bold text-app-red';
     riskBadge.textContent = 'CRITICAL';
     riskBadge.className = 'ml-auto font-mono text-[10px] font-bold text-app-red bg-app-redBg px-1.5 py-0.5 rounded-[2px] border border-red-200';
-  } else if (risk >= 70) {
+  } else if (risk >= 42) {
     riskEl.className = 'font-mono text-xl font-bold text-orange-600';
     riskBadge.textContent = 'HIGH RISK';
     riskBadge.className = 'ml-auto font-mono text-[10px] font-bold text-orange-600 bg-orange-50 px-1.5 py-0.5 rounded-[2px] border border-orange-200';
-  } else if (risk >= 50) {
+  } else if (risk >= 35) {
     riskEl.className = 'font-mono text-xl font-bold text-app-amber';
     riskBadge.textContent = 'SUSPICIOUS';
     riskBadge.className = 'ml-auto font-mono text-[10px] font-bold text-app-amber bg-app-amberBg px-1.5 py-0.5 rounded-[2px] border border-amber-200';

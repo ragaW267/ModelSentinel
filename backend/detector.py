@@ -89,9 +89,9 @@ class FusionWeights:
 class PolicyThresholds:
     """Risk-score thresholds for security status transitions."""
     monitored: float = 30.0
-    suspicious: float = 50.0
-    high_risk: float = 70.0
-    critical: float = 85.0
+    suspicious: float = 35.0
+    high_risk: float = 42.0
+    critical: float = 46.0
 
 
 @dataclass
