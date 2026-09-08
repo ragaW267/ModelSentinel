@@ -1,4 +1,4 @@
-from fastapi import FastAPI, HTTPException
+from fastapi import FastAPI, HTTPException, Request
 from pydantic import BaseModel, Field
 import joblib
 import numpy as np
@@ -33,7 +33,7 @@ except Exception as e:
 # ModelVault detector
 # --------------------------------------------------
 
-detector = ModelVaultDetector(max_history=100)
+detector = ModelVaultDetector(max_history=200)
 
 
 # --------------------------------------------------
@@ -79,13 +79,20 @@ def health():
 # --------------------------------------------------
 
 @app.post("/predict")
-def predict(data: EngineInput):
+def predict(data: EngineInput, request: Request):
 
     if model is None:
         raise HTTPException(
             status_code=500,
             detail="ARGUS model is not loaded"
         )
+
+    # --------------------------------------------------
+    # Identify the client (IP-based for now; can be
+    # replaced with API-key or session token later)
+    # --------------------------------------------------
+
+    client_id = request.client.host if request.client else "unknown"
 
     # --------------------------------------------------
     # Convert input into model feature vector
@@ -128,11 +135,13 @@ def predict(data: EngineInput):
 
     security = detector.process(
         features=features[0].tolist(),
-        prediction=prediction
+        prediction=prediction,
+        confidence=confidence,
+        client_id=client_id,
     )
 
     # --------------------------------------------------
-    # SECURITY DECISION
+    # SECURITY DECISIONS
     # --------------------------------------------------
 
     if security["action"] == "BLOCK":
@@ -143,19 +152,38 @@ def predict(data: EngineInput):
             "confidence": None,
 
             "security": {
+                "request_id": security["request_id"],
                 "risk_score": security["risk_score"],
-                "behavioral_score": security["behavioral_score"],
-                "similarity_score": security["similarity_score"],
-                "boundary_score": security["boundary_score"],
+                "scores": security["scores"],
                 "status": security["status"],
-                "action": "BLOCK"
+                "action": "BLOCK",
+                "reasons": security["reasons"],
             },
 
             "message": "Request blocked by ModelVault due to suspicious model-extraction behavior."
         }
 
+    if security["action"] == "RESTRICT":
+
+        return {
+            "model": "ARGUS",
+            "prediction": None,
+            "confidence": None,
+
+            "security": {
+                "request_id": security["request_id"],
+                "risk_score": security["risk_score"],
+                "scores": security["scores"],
+                "status": security["status"],
+                "action": "RESTRICT",
+                "reasons": security["reasons"],
+            },
+
+            "message": "Request restricted by ModelVault — high extraction risk detected."
+        }
+
     # --------------------------------------------------
-    # ALLOW RESPONSE
+    # ALLOW / RATE_LIMIT — return prediction
     # --------------------------------------------------
 
     label = "FAULTY" if prediction == 1 else "NORMAL"
@@ -168,11 +196,11 @@ def predict(data: EngineInput):
         "confidence": confidence,
 
         "security": {
+            "request_id": security["request_id"],
             "risk_score": security["risk_score"],
-            "behavioral_score": security["behavioral_score"],
-            "similarity_score": security["similarity_score"],
-            "boundary_score": security["boundary_score"],
+            "scores": security["scores"],
             "status": security["status"],
-            "action": security["action"]
+            "action": security["action"],
+            "reasons": security["reasons"],
         }
     }
