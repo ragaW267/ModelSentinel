@@ -1,0 +1,744 @@
+<!DOCTYPE html>
+<html class="dark" lang="en"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>ModelVault - Security Operations Console</title>
+<link href="https://fonts.googleapis.com" rel="preconnect"/>
+<link crossorigin="" href="https://fonts.gstatic.com" rel="preconnect"/>
+<link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;700&amp;family=Inter:wght@400;500;700&amp;family=JetBrains+Mono:wght@400;500;700&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<script>tailwind.config = {darkMode: "class", theme: {extend: {colors: {app: {bg: "#f7f7f5", card: "#ffffff", border: "#e5e5e3", borderDark: "#d1d1cf", text: "#1c1c1e", muted: "#636366", dim: "#8e8e93", red: "#dc2626", redBg: "#fef2f2", amber: "#d97706", amberBg: "#fffbeb", green: "#16a34a", greenBg: "#f0fdf4", blue: "#2563eb", blueBg: "#eff6ff"}}, fontFamily: {sans: ["Inter", "sans-serif"], mono: ["JetBrains Mono", "monospace"], display: ["Plus Jakarta Sans", "sans-serif"]}}}};</script>
+<style>
+    @layer base {
+      html, body { margin: 0; padding: 0; }
+      body { background-color: #f7f7f5; color: #1c1c1e; }
+    }
+    ::-webkit-scrollbar { width: 5px; height: 5px; }
+    ::-webkit-scrollbar-track { background: #f7f7f5; }
+    ::-webkit-scrollbar-thumb { background: #d1d1cf; border-radius: 2px; }
+    ::-webkit-scrollbar-thumb:hover { background: #a8a8a6; }
+    @keyframes pulse-dot { 0%, 100% { opacity: 1; } 50% { opacity: 0.4; } }
+    .pulse-dot { animation: pulse-dot 2s ease-in-out infinite; }
+  </style>
+</head>
+<body class="bg-app-bg text-app-text font-sans antialiased min-h-screen flex text-[13px] leading-normal selection:bg-gray-200">
+<!-- 1. LEFT SIDEBAR -->
+<aside class="w-52 flex-shrink-0 bg-white border-r border-app-border flex flex-col justify-between select-none">
+<div>
+<!-- Brand Box -->
+<div class="h-12 px-3.5 border-b border-app-border flex flex-col justify-center">
+<div class="flex items-center gap-1.5">
+<span class="font-bold text-xs tracking-wider text-app-text">MODELVAULT</span>
+</div>
+<div class="text-[11px] text-app-muted">Security Gateway v2.4</div>
+</div>
+<!-- Navigation links -->
+<div class="p-2 space-y-4">
+<nav class="space-y-0.5 text-xs">
+<!-- Overview (Active) -->
+<a class="flex items-center gap-2 px-2.5 py-1.5 rounded-[4px] bg-[#ebebe8] text-app-text font-medium" href="#">
+<span class="material-symbols-outlined text-[15px] text-app-text">dashboard</span>
+<span>Overview</span>
+</a>
+<!-- Requests -->
+<a class="flex items-center justify-between px-2.5 py-1.5 rounded-[4px] text-app-muted hover:text-app-text hover:bg-gray-100 transition-colors" href="#">
+<div class="flex items-center gap-2">
+<span class="material-symbols-outlined text-[15px] text-app-muted">swap_horiz</span>
+<span>Requests</span>
+</div>
+<span class="font-mono text-[10px] text-app-dim" id="nav-request-count">0</span>
+</a>
+<!-- Sessions -->
+<a class="flex items-center justify-between px-2.5 py-1.5 rounded-[4px] text-app-muted hover:text-app-text hover:bg-gray-100 transition-colors" href="#">
+<div class="flex items-center gap-2">
+<span class="material-symbols-outlined text-[15px] text-app-muted">devices</span>
+<span>Sessions</span>
+</div>
+<span class="font-mono text-[10px] text-app-dim" id="nav-session-count">0</span>
+</a>
+<!-- Security Events -->
+<a class="flex items-center justify-between px-2.5 py-1.5 rounded-[4px] text-app-muted hover:text-app-text hover:bg-gray-100 transition-colors" href="#">
+<div class="flex items-center gap-2">
+<span class="material-symbols-outlined text-[15px] text-app-red">shield_with_heart</span>
+<span class="text-app-red font-medium">Security Events</span>
+</div>
+<span class="font-mono text-[10px] font-semibold px-1 py-0.2 bg-app-redBg text-app-red rounded-[2px] border border-red-200" id="nav-event-count">0</span>
+</a>
+<!-- Model Config -->
+<a class="flex items-center gap-2 px-2.5 py-1.5 rounded-[4px] text-app-muted hover:text-app-text hover:bg-gray-100 transition-colors" href="#">
+<span class="material-symbols-outlined text-[15px] text-app-muted">tune</span>
+<span>Model Config</span>
+</a>
+</nav>
+<!-- Enforcement Settings Summary -->
+<div class="pt-2 border-t border-app-border">
+<div class="px-2 pb-1.5 text-[10px] uppercase font-semibold text-app-dim tracking-wider">
+            Active Filters
+          </div>
+<div class="px-2 py-0.5 space-y-1 text-[11px] font-mono">
+<div class="flex justify-between">
+<span class="text-app-muted">Boundary:</span>
+<span class="font-medium text-app-text">Strict (90+)</span>
+</div>
+<div class="flex justify-between">
+<span class="text-app-muted">Embedding:</span>
+<span class="font-medium text-app-text">Cosine</span>
+</div>
+<div class="flex justify-between">
+<span class="text-app-muted">Rate Gate:</span>
+<span class="font-medium text-app-text">Adaptive</span>
+</div>
+</div>
+</div>
+</div>
+</div>
+<!-- Bottom system status widget -->
+<div class="p-3 border-t border-app-border bg-[#fafaf8] text-[11px] space-y-1">
+<div class="flex items-center justify-between">
+<span class="text-app-muted">System:</span>
+<span class="flex items-center gap-1.5 font-medium" id="sys-status">
+<span class="w-1.5 h-1.5 rounded-full bg-app-dim"></span>
+          CHECKING...
+        </span>
+</div>
+<div class="flex items-center justify-between">
+<span class="text-app-muted">ARGUS:</span>
+<span class="flex items-center gap-1.5 font-medium" id="model-status">
+<span class="w-1.5 h-1.5 rounded-full bg-app-dim"></span>
+          CHECKING...
+        </span>
+</div>
+<div class="flex items-center justify-between font-mono text-[10px] text-app-muted pt-0.5 border-t border-app-border">
+<span>Target:</span>
+<span class="text-app-text" id="target-display">localhost:8000</span>
+</div>
+</div>
+</aside>
+<!-- MAIN WORKSPACE -->
+<div class="flex-1 flex flex-col min-w-0">
+<!-- TOP APPLICATION HEADER -->
+<header class="h-12 px-4 bg-white border-b border-app-border flex items-center justify-between select-none">
+<div class="flex items-center gap-2 text-xs">
+<span class="font-semibold text-app-text">MODELVAULT</span>
+<span class="text-app-borderDark">/</span>
+<span class="text-app-muted">Overview</span>
+</div>
+<div class="flex items-center gap-3 text-xs">
+<div class="hidden md:flex items-center gap-2 font-mono text-[11px] text-app-muted border-r border-app-border pr-3">
+<span>Protected Model: <strong class="text-app-text font-medium">ARGUS (Random Forest Classifier)</strong></span>
+<span class="text-app-borderDark">|</span>
+<span>Env: <strong class="text-app-text font-medium">LOCAL-02</strong></span>
+<span class="text-app-borderDark">|</span>
+<span id="header-latency" class="text-app-green font-medium">Connecting...</span>
+</div>
+<div class="flex items-center gap-1.5">
+<!-- Server URL Config -->
+<input id="server-url-input" type="text" value="http://localhost:8000" class="px-2 py-1 text-xs font-mono rounded-[4px] border border-app-border placeholder-app-dim focus:outline-none focus:border-app-borderDark w-52" placeholder="Server URL" />
+<button onclick="updateServerUrl()" class="px-2 py-1 rounded-[4px] border border-app-border bg-white text-app-text text-xs hover:bg-gray-50 flex items-center gap-1">
+<span class="material-symbols-outlined text-[13px] text-app-muted">sync</span>
+<span>Connect</span>
+</button>
+<button onclick="exportLogs()" class="px-2.5 py-1 rounded-[4px] border border-app-borderDark bg-white text-app-text text-xs font-medium hover:bg-gray-50">
+            Export Logs
+          </button>
+</div>
+</div>
+</header>
+<!-- CONTENT BODY -->
+<main class="flex-1 p-4 space-y-3.5 overflow-y-auto">
+<!-- PAGE TITLE & MODEL METADATA STRIP -->
+<div>
+<div class="flex items-baseline gap-2">
+<h1 class="text-base font-semibold text-app-text">Overview</h1>
+<span class="text-xs text-app-muted">Monitor API traffic, extraction probes, and automated mitigations.</span>
+</div>
+<div class="mt-2 px-3 py-1.5 bg-white rounded-[4px] border border-app-border text-[11px] font-mono text-app-muted flex flex-wrap items-center gap-y-1 gap-x-2">
+<span><strong class="text-app-text font-medium">Model:</strong> ARGUS Classifier</span>
+<span class="text-app-borderDark">|</span>
+<span><strong class="text-app-text font-medium">Endpoint:</strong> POST /predict</span>
+<span class="text-app-borderDark">|</span>
+<span><strong class="text-app-text font-medium">Defense Mode:</strong> <span class="text-app-amber font-semibold">Adaptive</span></span>
+</div>
+</div>
+<!-- 3. METRICS ROW -->
+<section class="grid grid-cols-4 bg-white rounded-[4px] border border-app-border divide-x divide-app-border">
+<div class="px-3.5 py-2.5">
+<div class="text-[11px] text-app-muted font-medium">Requests</div>
+<div class="mt-0.5 flex items-baseline gap-2">
+<span class="font-mono text-xl font-semibold text-app-text" id="stat-requests">0</span>
+</div>
+</div>
+<div class="px-3.5 py-2.5">
+<div class="text-[11px] text-app-muted font-medium">Suspicious</div>
+<div class="mt-0.5 flex items-baseline gap-2">
+<span class="font-mono text-xl font-semibold text-app-text" id="stat-suspicious">0</span>
+<span class="font-mono text-[11px] text-app-amber font-medium" id="stat-suspicious-pct"></span>
+</div>
+</div>
+<div class="px-3.5 py-2.5">
+<div class="text-[11px] text-app-muted font-medium">Blocked</div>
+<div class="mt-0.5 flex items-baseline gap-2">
+<span class="font-mono text-xl font-semibold text-app-text" id="stat-blocked">0</span>
+<span class="font-mono text-[11px] text-app-red font-medium" id="stat-blocked-pct"></span>
+</div>
+</div>
+<div class="px-3.5 py-2.5 bg-[#fefefe]">
+<div class="text-[11px] text-app-muted font-medium">Current Extraction Risk</div>
+<div class="mt-0.5 flex items-baseline gap-2">
+<span class="font-mono text-xl font-bold" id="stat-risk">0</span>
+<span class="font-mono text-xs text-app-muted">/ 100</span>
+<span class="ml-auto font-mono text-[10px] font-bold px-1.5 py-0.5 rounded-[2px] border" id="stat-risk-badge">TRUSTED</span>
+</div>
+</div>
+</section>
+<!-- 4. CURRENT SECURITY INCIDENT PANEL (hidden until critical) -->
+<section class="bg-white rounded-[4px] border border-app-border border-l-[3px] p-3.5 hidden" id="incident-panel">
+<div class="flex items-center justify-between pb-2.5 border-b border-app-border">
+<div class="flex items-center gap-2">
+<span class="text-xs font-bold text-app-red tracking-wide uppercase" id="incident-title">SECURITY INCIDENT</span>
+<span class="font-mono text-[10px] font-bold bg-app-redBg text-app-red px-1.5 py-0.5 rounded-[2px] border border-red-200" id="incident-severity">CRITICAL</span>
+</div>
+</div>
+<div class="mt-3 grid grid-cols-1 md:grid-cols-4 gap-3 text-xs">
+<div>
+<div class="text-app-muted text-[11px]">Target Session</div>
+<div class="font-mono font-medium text-app-text mt-0.5" id="incident-session">—</div>
+</div>
+<div>
+<div class="text-app-muted text-[11px]">Calculated Risk Score</div>
+<div class="font-mono font-bold text-app-red mt-0.5" id="incident-risk">—</div>
+</div>
+<div>
+<div class="text-app-muted text-[11px]">Trigger Condition</div>
+<div class="text-app-text mt-0.5 font-mono text-[11px]" id="incident-trigger">—</div>
+</div>
+<div>
+<div class="text-app-muted text-[11px]">Mitigation Action</div>
+<div class="text-app-red font-medium mt-0.5 font-mono text-[11px]" id="incident-action">—</div>
+</div>
+</div>
+</section>
+<!-- 5. DETECTION SIGNALS & RISK HISTORY -->
+<div class="grid grid-cols-12 gap-3.5">
+<!-- Left: Detection Signals table (7 cols) -->
+<div class="col-span-12 lg:col-span-7 bg-white rounded-[4px] border border-app-border p-3.5">
+<div class="flex items-center justify-between pb-2 border-b border-app-border">
+<div class="font-semibold text-xs text-app-text">Detection Signals</div>
+<span class="text-[11px] text-app-muted">Model: ARGUS</span>
+</div>
+<table class="w-full text-left text-xs mt-2 border-collapse">
+<thead>
+<tr class="text-[11px] text-app-muted border-b border-app-border">
+<th class="py-1.5 font-medium">Signal</th>
+<th class="py-1.5 font-medium">Score</th>
+<th class="py-1.5 font-medium w-28">Threshold</th>
+<th class="py-1.5 font-medium text-right">Assessment</th>
+</tr>
+</thead>
+<tbody class="divide-y divide-app-border font-mono text-xs" id="signals-body">
+<tr><td class="py-2 text-app-text font-sans font-medium">Behavioral Anomaly</td><td class="py-2" id="sig-behavioral">0</td><td class="py-2"><div class="w-24 bg-gray-100 rounded-[2px] h-1.5 overflow-hidden"><div class="bg-green-500 h-full transition-all duration-500" id="bar-behavioral" style="width:0%"></div></div></td><td class="py-2 text-right font-sans text-app-muted text-[11px]" id="assess-behavioral">No data</td></tr>
+<tr><td class="py-2 text-app-text font-sans font-medium">Query Similarity</td><td class="py-2" id="sig-similarity">0</td><td class="py-2"><div class="w-24 bg-gray-100 rounded-[2px] h-1.5 overflow-hidden"><div class="bg-green-500 h-full transition-all duration-500" id="bar-similarity" style="width:0%"></div></div></td><td class="py-2 text-right font-sans text-app-muted text-[11px]" id="assess-similarity">No data</td></tr>
+<tr><td class="py-2 text-app-text font-sans font-medium">Trajectory Analysis</td><td class="py-2" id="sig-trajectory">0</td><td class="py-2"><div class="w-24 bg-gray-100 rounded-[2px] h-1.5 overflow-hidden"><div class="bg-green-500 h-full transition-all duration-500" id="bar-trajectory" style="width:0%"></div></div></td><td class="py-2 text-right font-sans text-app-muted text-[11px]" id="assess-trajectory">No data</td></tr>
+<tr><td class="py-2 text-app-text font-sans font-medium">Boundary Probing</td><td class="py-2" id="sig-boundary">0</td><td class="py-2"><div class="w-24 bg-gray-100 rounded-[2px] h-1.5 overflow-hidden"><div class="bg-green-500 h-full transition-all duration-500" id="bar-boundary" style="width:0%"></div></div></td><td class="py-2 text-right font-sans text-app-muted text-[11px]" id="assess-boundary">No data</td></tr>
+<tr><td class="py-2 text-app-text font-sans font-medium">Input Coverage</td><td class="py-2" id="sig-coverage">0</td><td class="py-2"><div class="w-24 bg-gray-100 rounded-[2px] h-1.5 overflow-hidden"><div class="bg-green-500 h-full transition-all duration-500" id="bar-coverage" style="width:0%"></div></div></td><td class="py-2 text-right font-sans text-app-muted text-[11px]" id="assess-coverage">No data</td></tr>
+</tbody>
+</table>
+</div>
+<!-- Right: Risk History -->
+<div class="col-span-12 lg:col-span-5 bg-white rounded-[4px] border border-app-border p-3.5 flex flex-col justify-between">
+<div>
+<div class="flex items-center justify-between pb-1.5 border-b border-app-border">
+<span class="font-semibold text-xs text-app-text">Risk History (Live)</span>
+<div class="flex items-center gap-3 text-[10px] text-app-muted font-mono">
+<span class="flex items-center gap-1"><span class="w-2 h-0.5 bg-red-600"></span> Risk</span>
+<span class="flex items-center gap-1"><span class="w-2 h-0.5 border-t border-dashed border-gray-400"></span> Threshold</span>
+</div>
+</div>
+<div class="relative w-full h-32 bg-white rounded-[2px] mt-2 border border-app-border px-1 pt-1.5">
+<!-- Threshold marker line -->
+<div class="absolute inset-x-0 top-[15%] flex items-center justify-end pointer-events-none z-10 pr-1">
+<div class="w-full border-b border-dashed border-red-400"></div>
+<span class="font-mono text-[9px] text-red-600 bg-white px-1 ml-1 whitespace-nowrap">
+                  THRESHOLD ≥85
+                </span>
+</div>
+<svg class="w-full h-20" preserveAspectRatio="none" viewBox="0 0 500 80" id="risk-chart">
+<!-- Grid Lines -->
+<line stroke="#f0f0ee" stroke-width="1" x1="0" x2="500" y1="20" y2="20"></line>
+<line stroke="#f0f0ee" stroke-width="1" x1="0" x2="500" y1="40" y2="40"></line>
+<line stroke="#f0f0ee" stroke-width="1" x1="0" x2="500" y1="60" y2="60"></line>
+<!-- Dynamic polyline rendered by JS -->
+<polyline id="risk-line" fill="none" points="" stroke="#dc2626" stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5"></polyline>
+</svg>
+<div class="h-5 border-t border-app-border flex justify-between items-center font-mono text-[9px] text-app-muted px-1 mt-1" id="risk-chart-labels">
+<span>waiting for data...</span>
+</div>
+</div>
+</div>
+</div>
+</div>
+<!-- 6. LIVE API REQUEST LOG -->
+<section class="bg-white rounded-[4px] border border-app-border p-3.5">
+<div class="flex flex-col sm:flex-row sm:items-center justify-between gap-2 pb-2.5 border-b border-app-border">
+<div class="flex items-center gap-2">
+<span class="font-semibold text-xs text-app-text">Live API Request Log</span>
+<span class="text-[11px] text-app-muted font-mono">(Inference Telemetry)</span>
+</div>
+<div class="flex items-center gap-2 text-xs">
+<input id="log-filter" oninput="filterLogs()" class="px-2 py-1 text-xs font-mono rounded-[4px] border border-app-border placeholder-app-dim focus:outline-none focus:border-app-borderDark w-48" placeholder="Filter by session or action..." type="text"/>
+</div>
+</div>
+<div class="overflow-x-auto">
+<table class="w-full text-left font-mono text-xs border-collapse">
+<thead>
+<tr class="text-[11px] text-app-muted border-b border-app-border bg-[#fafaf8]">
+<th class="py-1.5 px-2 font-medium">Time</th>
+<th class="py-1.5 px-2 font-medium">Method &amp; Path</th>
+<th class="py-1.5 px-2 font-medium">Session</th>
+<th class="py-1.5 px-2 font-medium">Risk</th>
+<th class="py-1.5 px-2 font-medium">Model Response</th>
+<th class="py-1.5 px-2 text-right font-medium">Action</th>
+</tr>
+</thead>
+<tbody class="divide-y divide-app-border text-[12px]" id="request-log-body">
+<tr><td colspan="6" class="py-4 text-center text-app-muted font-sans">Waiting for requests...</td></tr>
+</tbody>
+</table>
+</div>
+<div class="pt-2 border-t border-app-border flex items-center justify-between text-[11px] font-mono text-app-muted">
+<span id="log-count">Displaying 0 events</span>
+<span class="text-app-dim" id="log-refresh-status">Auto-refresh: 3s</span>
+</div>
+</section>
+<!-- 7. SECURITY EVENTS LOG -->
+<section class="bg-white rounded-[4px] border border-app-border p-3.5">
+<div class="flex items-center justify-between pb-2 border-b border-app-border">
+<div class="flex items-center gap-2">
+<span class="font-semibold text-xs text-app-text">Security Events Log</span>
+<span class="text-[11px] text-app-muted">(Automated Mitigations &amp; Alerts)</span>
+</div>
+</div>
+<div class="overflow-x-auto">
+<table class="w-full text-left text-xs border-collapse">
+<thead>
+<tr class="text-[11px] text-app-muted border-b border-app-border bg-[#fafaf8]">
+<th class="py-1.5 px-2 font-medium w-24">Time</th>
+<th class="py-1.5 px-2 font-medium">Event</th>
+<th class="py-1.5 px-2 font-medium w-24">Severity</th>
+<th class="py-1.5 px-2 font-medium">Details</th>
+</tr>
+</thead>
+<tbody class="divide-y divide-app-border font-mono text-xs" id="security-events-body">
+<tr><td colspan="4" class="py-4 text-center text-app-muted font-sans">No security events</td></tr>
+</tbody>
+</table>
+</div>
+</section>
+</main>
+<!-- SYSTEM FOOTER -->
+<footer class="h-6 px-4 bg-white border-t border-app-border flex items-center justify-between font-mono text-[10px] text-app-muted select-none">
+<div class="flex items-center gap-3">
+<span>ModelVault Gateway</span>
+<span class="text-app-borderDark">|</span>
+<span>Cluster: ARGUS-PROD-01</span>
+<span class="text-app-borderDark">|</span>
+<span>Runtime: Python 3.12</span>
+</div>
+<div>
+<span id="footer-status">Status: Connecting...</span>
+</div>
+</footer>
+</div>
+
+<!-- ═══════════════════════════════════════════════════════ -->
+<!-- JAVASCRIPT: Live Dashboard Controller                  -->
+<!-- ═══════════════════════════════════════════════════════ -->
+<script>
+// ── State ──────────────────────────────────────────────
+let SERVER_URL = 'http://localhost:8000';
+let refreshInterval = null;
+let riskHistory = [];
+const MAX_RISK_POINTS = 20;
+let securityEvents = [];
+let allRequests = [];
+
+// ── Initialization ─────────────────────────────────────
+window.addEventListener('DOMContentLoaded', () => {
+  // Try to detect server URL from query params or use default
+  const params = new URLSearchParams(window.location.search);
+  if (params.get('server')) {
+    SERVER_URL = params.get('server');
+  }
+  document.getElementById('server-url-input').value = SERVER_URL;
+  startPolling();
+});
+
+function updateServerUrl() {
+  SERVER_URL = document.getElementById('server-url-input').value.replace(/\/$/, '');
+  document.getElementById('target-display').textContent = SERVER_URL.replace('http://', '');
+  stopPolling();
+  startPolling();
+}
+
+function startPolling() {
+  fetchAll();
+  refreshInterval = setInterval(fetchAll, 3000);
+}
+
+function stopPolling() {
+  if (refreshInterval) clearInterval(refreshInterval);
+}
+
+// ── Fetch All Data ─────────────────────────────────────
+async function fetchAll() {
+  try {
+    const [statusRes, statsRes, reqRes] = await Promise.all([
+      fetch(`${SERVER_URL}/dashboard/status`),
+      fetch(`${SERVER_URL}/dashboard/stats`),
+      fetch(`${SERVER_URL}/dashboard/requests?limit=50`),
+    ]);
+
+    const status = await statusRes.json();
+    const stats = await statsRes.json();
+    const reqs = await reqRes.json();
+
+    updateStatus(status);
+    updateStats(stats);
+    updateRequestLog(reqs);
+    updateSignals(reqs);
+    updateRiskChart(reqs);
+    updateSecurityEvents(reqs);
+    updateIncidentPanel(reqs, stats);
+
+    document.getElementById('header-latency').textContent = 'Online';
+    document.getElementById('header-latency').className = 'text-app-green font-medium';
+    document.getElementById('footer-status').textContent = 'Status: Nominal';
+  } catch (e) {
+    document.getElementById('header-latency').textContent = 'Offline';
+    document.getElementById('header-latency').className = 'text-app-red font-medium';
+    document.getElementById('footer-status').textContent = 'Status: Disconnected';
+    document.getElementById('sys-status').innerHTML = '<span class="w-1.5 h-1.5 rounded-full bg-app-red"></span> OFFLINE';
+    document.getElementById('sys-status').className = 'flex items-center gap-1.5 font-medium text-app-red';
+  }
+}
+
+// ── Update System Status ───────────────────────────────
+function updateStatus(s) {
+  const sysEl = document.getElementById('sys-status');
+  const modelEl = document.getElementById('model-status');
+
+  if (s.api_status === 'online') {
+    sysEl.innerHTML = '<span class="w-1.5 h-1.5 rounded-full bg-app-green pulse-dot"></span> ONLINE';
+    sysEl.className = 'flex items-center gap-1.5 font-medium text-app-green';
+  }
+  if (s.model_loaded) {
+    modelEl.innerHTML = '<span class="w-1.5 h-1.5 rounded-full bg-app-green pulse-dot"></span> ONLINE';
+    modelEl.className = 'flex items-center gap-1.5 font-medium text-app-green';
+  } else {
+    modelEl.innerHTML = '<span class="w-1.5 h-1.5 rounded-full bg-app-red"></span> NOT LOADED';
+    modelEl.className = 'flex items-center gap-1.5 font-medium text-app-red';
+  }
+}
+
+// ── Update Stats ───────────────────────────────────────
+function updateStats(s) {
+  document.getElementById('stat-requests').textContent = s.total_requests.toLocaleString();
+  document.getElementById('stat-suspicious').textContent = s.suspicious;
+  document.getElementById('stat-blocked').textContent = s.blocked;
+  document.getElementById('nav-request-count').textContent = s.total_requests.toLocaleString();
+  document.getElementById('nav-session-count').textContent = s.unique_clients;
+
+  if (s.total_requests > 0) {
+    const suspPct = ((s.suspicious / s.total_requests) * 100).toFixed(1);
+    const blkPct = ((s.blocked / s.total_requests) * 100).toFixed(1);
+    document.getElementById('stat-suspicious-pct').textContent = `${suspPct}% flagged`;
+    document.getElementById('stat-blocked-pct').textContent = `${blkPct}% dropped`;
+  }
+
+  const riskEl = document.getElementById('stat-risk');
+  const riskBadge = document.getElementById('stat-risk-badge');
+  riskEl.textContent = Math.round(s.current_risk);
+
+  const risk = s.current_risk;
+  if (risk >= 85) {
+    riskEl.className = 'font-mono text-xl font-bold text-app-red';
+    riskBadge.textContent = 'CRITICAL';
+    riskBadge.className = 'ml-auto font-mono text-[10px] font-bold text-app-red bg-app-redBg px-1.5 py-0.5 rounded-[2px] border border-red-200';
+  } else if (risk >= 70) {
+    riskEl.className = 'font-mono text-xl font-bold text-orange-600';
+    riskBadge.textContent = 'HIGH RISK';
+    riskBadge.className = 'ml-auto font-mono text-[10px] font-bold text-orange-600 bg-orange-50 px-1.5 py-0.5 rounded-[2px] border border-orange-200';
+  } else if (risk >= 50) {
+    riskEl.className = 'font-mono text-xl font-bold text-app-amber';
+    riskBadge.textContent = 'SUSPICIOUS';
+    riskBadge.className = 'ml-auto font-mono text-[10px] font-bold text-app-amber bg-app-amberBg px-1.5 py-0.5 rounded-[2px] border border-amber-200';
+  } else if (risk >= 30) {
+    riskEl.className = 'font-mono text-xl font-bold text-app-blue';
+    riskBadge.textContent = 'MONITORED';
+    riskBadge.className = 'ml-auto font-mono text-[10px] font-bold text-app-blue bg-app-blueBg px-1.5 py-0.5 rounded-[2px] border border-blue-200';
+  } else {
+    riskEl.className = 'font-mono text-xl font-bold text-app-green';
+    riskBadge.textContent = 'TRUSTED';
+    riskBadge.className = 'ml-auto font-mono text-[10px] font-bold text-app-green bg-app-greenBg px-1.5 py-0.5 rounded-[2px] border border-green-200';
+  }
+
+  // Security events count
+  document.getElementById('nav-event-count').textContent = securityEvents.length;
+}
+
+// ── Update Request Log Table ───────────────────────────
+function updateRequestLog(data) {
+  allRequests = data.requests || [];
+  renderRequestLog(allRequests);
+}
+
+function renderRequestLog(reqs) {
+  const tbody = document.getElementById('request-log-body');
+  if (!reqs.length) {
+    tbody.innerHTML = '<tr><td colspan="6" class="py-4 text-center text-app-muted font-sans">Waiting for requests...</td></tr>';
+    document.getElementById('log-count').textContent = 'Displaying 0 events';
+    return;
+  }
+
+  let html = '';
+  for (const r of reqs) {
+    const time = new Date(r.timestamp * 1000).toLocaleTimeString('en-GB');
+    const risk = Math.round(r.risk_score);
+    const action = r.action;
+    const pred = r.prediction_label || '—';
+    const conf = r.confidence ? r.confidence.toFixed(2) : '—';
+
+    let actionClass = 'text-app-green font-medium';
+    let rowClass = 'hover:bg-gray-50';
+    let riskClass = 'text-app-muted';
+    let sessClass = 'text-app-muted';
+
+    if (action === 'BLOCK') {
+      actionClass = 'font-bold text-app-red';
+      rowClass = 'bg-red-50/70 hover:bg-red-50';
+      riskClass = 'font-bold text-app-red';
+      sessClass = 'font-bold text-app-red';
+    } else if (action === 'RESTRICT') {
+      actionClass = 'font-bold text-orange-600';
+      rowClass = 'bg-orange-50/40 hover:bg-orange-50';
+      riskClass = 'font-bold text-orange-600';
+      sessClass = 'font-medium text-orange-600';
+    } else if (action === 'RATE_LIMIT') {
+      actionClass = 'text-app-amber font-medium';
+      rowClass = 'hover:bg-amber-50/40';
+      riskClass = 'text-app-amber font-medium';
+      sessClass = 'text-app-amber font-medium';
+    }
+
+    html += `<tr class="${rowClass}">
+      <td class="py-1.5 px-2 text-app-muted">${time}</td>
+      <td class="py-1.5 px-2"><span class="text-app-muted">POST</span> /predict</td>
+      <td class="py-1.5 px-2 ${sessClass}">${r.client_id}</td>
+      <td class="py-1.5 px-2 ${riskClass}">${risk}</td>
+      <td class="py-1.5 px-2 text-app-muted">${action === 'BLOCK' || action === 'RESTRICT' ? '— (Suppressed)' : `${pred} (${conf})`}</td>
+      <td class="py-1.5 px-2 text-right"><span class="${actionClass}">${action}</span></td>
+    </tr>`;
+  }
+
+  tbody.innerHTML = html;
+  document.getElementById('log-count').textContent = `Displaying ${reqs.length} events`;
+}
+
+function filterLogs() {
+  const q = document.getElementById('log-filter').value.toLowerCase();
+  if (!q) { renderRequestLog(allRequests); return; }
+  const filtered = allRequests.filter(r =>
+    r.client_id.toLowerCase().includes(q) ||
+    r.action.toLowerCase().includes(q) ||
+    r.status.toLowerCase().includes(q)
+  );
+  renderRequestLog(filtered);
+}
+
+// ── Update Detection Signals ───────────────────────────
+function updateSignals(data) {
+  const reqs = data.requests || [];
+  if (!reqs.length) return;
+
+  // Use the latest request's scores
+  const latest = reqs[0];
+  if (!latest || !latest.scores) return;
+
+  const signals = ['behavioral', 'similarity', 'trajectory', 'boundary', 'coverage'];
+  for (const sig of signals) {
+    const val = latest.scores[sig] || 0;
+    const rounded = Math.round(val);
+    document.getElementById(`sig-${sig}`).textContent = `${rounded} / 100`;
+    document.getElementById(`bar-${sig}`).style.width = `${rounded}%`;
+
+    // Color the bar and score
+    let barColor = 'bg-green-500';
+    let textColor = 'text-app-green';
+    let assessment = 'Normal';
+    if (val >= 70) { barColor = 'bg-red-600'; textColor = 'text-app-red font-semibold'; assessment = 'Critical'; }
+    else if (val >= 50) { barColor = 'bg-amber-500'; textColor = 'text-app-amber font-semibold'; assessment = 'Elevated'; }
+    else if (val >= 30) { barColor = 'bg-blue-500'; textColor = 'text-app-blue font-medium'; assessment = 'Monitored'; }
+
+    document.getElementById(`bar-${sig}`).className = `${barColor} h-full transition-all duration-500`;
+    document.getElementById(`sig-${sig}`).className = `py-2 ${textColor}`;
+    document.getElementById(`assess-${sig}`).textContent = assessment;
+  }
+}
+
+// ── Update Risk Chart ──────────────────────────────────
+function updateRiskChart(data) {
+  const reqs = data.requests || [];
+  if (!reqs.length) return;
+
+  // Build risk history from requests (oldest first)
+  riskHistory = reqs.slice().reverse().map(r => ({
+    risk: r.risk_score,
+    time: new Date(r.timestamp * 1000).toLocaleTimeString('en-GB'),
+    client: r.client_id,
+  }));
+
+  // Limit to last N points
+  if (riskHistory.length > MAX_RISK_POINTS) {
+    riskHistory = riskHistory.slice(-MAX_RISK_POINTS);
+  }
+
+  if (riskHistory.length < 2) return;
+
+  const n = riskHistory.length;
+  const chartWidth = 500;
+  const chartHeight = 80;
+  const padding = 25;
+  const usableWidth = chartWidth - 2 * padding;
+
+  let points = '';
+  let circles = '';
+  for (let i = 0; i < n; i++) {
+    const x = padding + (i / (n - 1)) * usableWidth;
+    const y = chartHeight - (riskHistory[i].risk / 100) * chartHeight;
+
+    // Color based on risk level
+    let color = '#16a34a';
+    if (riskHistory[i].risk >= 85) color = '#dc2626';
+    else if (riskHistory[i].risk >= 70) color = '#ea580c';
+    else if (riskHistory[i].risk >= 50) color = '#d97706';
+    else if (riskHistory[i].risk >= 30) color = '#2563eb';
+
+    points += `${x},${y} `;
+    circles += `<circle cx="${x}" cy="${y}" r="2.5" fill="${color}"/>`;
+    circles += `<text fill="#636366" font-family="JetBrains Mono" font-size="7" text-anchor="middle" x="${x}" y="${Math.max(y - 5, 8)}">${Math.round(riskHistory[i].risk)}</text>`;
+  }
+
+  const svg = document.getElementById('risk-chart');
+  const line = document.getElementById('risk-line');
+  line.setAttribute('points', points.trim());
+
+  // Remove old circles & text, add new
+  svg.querySelectorAll('circle, text').forEach(el => el.remove());
+  svg.insertAdjacentHTML('beforeend', circles);
+
+  // Update labels
+  const labelContainer = document.getElementById('risk-chart-labels');
+  if (riskHistory.length >= 2) {
+    const first = riskHistory[0].time;
+    const last = riskHistory[riskHistory.length - 1].time;
+    labelContainer.innerHTML = `<span>${first}</span><span>${last}</span>`;
+  }
+}
+
+// ── Update Security Events ─────────────────────────────
+function updateSecurityEvents(data) {
+  const reqs = data.requests || [];
+  securityEvents = [];
+
+  for (const r of reqs) {
+    if (r.action === 'BLOCK' || r.action === 'RESTRICT' || r.status === 'HIGH_RISK' || r.status === 'CRITICAL') {
+      const time = new Date(r.timestamp * 1000).toLocaleTimeString('en-GB');
+      let event = 'Suspicious activity detected';
+      let severity = 'MEDIUM';
+      let sevClass = 'bg-gray-200 text-app-text font-medium';
+      let rowClass = 'hover:bg-gray-50';
+
+      if (r.action === 'BLOCK') {
+        event = 'Model extraction detected';
+        severity = 'CRITICAL';
+        sevClass = 'bg-red-100 text-app-red font-bold';
+        rowClass = 'hover:bg-red-50/30';
+      } else if (r.action === 'RESTRICT') {
+        event = 'High extraction risk';
+        severity = 'HIGH';
+        sevClass = 'bg-amber-100 text-app-amber font-semibold';
+        rowClass = 'hover:bg-amber-50/20';
+      } else if (r.status === 'SUSPICIOUS') {
+        event = 'Abnormal query pattern';
+        severity = 'MEDIUM';
+      }
+
+      const detail = r.reasons ? r.reasons[0] : `Risk: ${Math.round(r.risk_score)}`;
+
+      securityEvents.push({ time, event, severity, sevClass, rowClass, detail, client: r.client_id, risk: r.risk_score });
+    }
+  }
+
+  const tbody = document.getElementById('security-events-body');
+  if (!securityEvents.length) {
+    tbody.innerHTML = '<tr><td colspan="4" class="py-4 text-center text-app-muted font-sans">No security events</td></tr>';
+    return;
+  }
+
+  let html = '';
+  for (const e of securityEvents) {
+    const eventColor = e.severity === 'CRITICAL' ? 'text-app-red' : e.severity === 'HIGH' ? 'text-app-amber' : 'text-app-text';
+    html += `<tr class="${e.rowClass}">
+      <td class="py-1.5 px-2 text-app-muted">${e.time}</td>
+      <td class="py-1.5 px-2 font-sans font-medium ${eventColor}">${e.event}</td>
+      <td class="py-1.5 px-2"><span class="px-1.5 py-0.2 rounded-[2px] ${e.sevClass} text-[10px]">${e.severity}</span></td>
+      <td class="py-1.5 px-2 text-app-text font-sans">${e.client} — ${e.detail}</td>
+    </tr>`;
+  }
+  tbody.innerHTML = html;
+}
+
+// ── Update Incident Panel ──────────────────────────────
+function updateIncidentPanel(data, stats) {
+  const panel = document.getElementById('incident-panel');
+  const reqs = data.requests || [];
+
+  // Find most critical recent event
+  const critical = reqs.find(r => r.action === 'BLOCK' || r.action === 'RESTRICT');
+
+  if (!critical) {
+    panel.classList.add('hidden');
+    return;
+  }
+
+  panel.classList.remove('hidden');
+
+  if (critical.action === 'BLOCK') {
+    panel.className = 'bg-white rounded-[4px] border border-app-border border-l-[3px] border-l-red-600 p-3.5';
+    document.getElementById('incident-title').textContent = 'SECURITY INCIDENT: MODEL EXTRACTION DETECTED';
+    document.getElementById('incident-severity').textContent = 'CRITICAL / SEV-1';
+  } else {
+    panel.className = 'bg-white rounded-[4px] border border-app-border border-l-[3px] border-l-orange-500 p-3.5';
+    document.getElementById('incident-title').textContent = 'HIGH RISK: EXTRACTION ATTEMPT SUSPECTED';
+    document.getElementById('incident-severity').textContent = 'HIGH / SEV-2';
+  }
+
+  document.getElementById('incident-session').textContent = critical.client_id;
+  document.getElementById('incident-risk').textContent = `${Math.round(critical.risk_score)} / 100`;
+  document.getElementById('incident-trigger').textContent = critical.reasons ? critical.reasons[0] : 'Multiple signals elevated';
+  document.getElementById('incident-action').textContent = `${critical.action} — Prediction suppressed`;
+}
+
+// ── Export Logs ────────────────────────────────────────
+function exportLogs() {
+  const blob = new Blob([JSON.stringify(allRequests, null, 2)], { type: 'application/json' });
+  const url = URL.createObjectURL(blob);
+  const a = document.createElement('a');
+  a.href = url;
+  a.download = `modelvault_logs_${Date.now()}.json`;
+  a.click();
+  URL.revokeObjectURL(url);
+}
+</script>
+</body></html>

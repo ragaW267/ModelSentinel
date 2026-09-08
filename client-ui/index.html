@@ -1,0 +1,606 @@
+<!DOCTYPE html>
+<html class="dark" lang="en"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>MODELVAULT // Client Console</title>
+<link href="https://fonts.googleapis.com" rel="preconnect"/>
+<link crossorigin="" href="https://fonts.gstatic.com" rel="preconnect"/>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&amp;family=JetBrains+Mono:ital,wght@0,400;0,500;0,600;0,700;1,400&amp;family=Space+Grotesk:wght@500;600;700&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<script>
+    tailwind.config = {
+      darkMode: "class",
+      theme: {
+        extend: {
+          colors: {
+            app: {
+              bg: "#0d1117",
+              card: "#161b22",
+              subcard: "#0e131a",
+              hover: "#1f242c",
+              border: "#30363d",
+              muted: "#8b949e",
+              text: "#c9d1d9",
+              heading: "#f0f6fc",
+              emerald: "#2ea043",
+              "emerald-glow": "#3fb950",
+              crimson: "#f85149",
+              "crimson-bg": "rgba(248, 81, 73, 0.12)",
+              amber: "#d29922",
+              "amber-bg": "rgba(210, 153, 34, 0.12)",
+              cyan: "#58a6ff"
+            }
+          },
+          fontFamily: {
+            sans: ["Inter", "sans-serif"],
+            mono: ["JetBrains Mono", "monospace"],
+            display: ["Space Grotesk", "sans-serif"]
+          }
+        }
+      }
+    };
+  </script>
+<style>
+    .material-symbols-outlined { font-size: 16px; line-height: 1; vertical-align: middle; }
+    ::-webkit-scrollbar { width: 6px; height: 6px; }
+    ::-webkit-scrollbar-track { background: #0d1117; }
+    ::-webkit-scrollbar-thumb { background: #30363d; border-radius: 3px; }
+    ::-webkit-scrollbar-thumb:hover { background: #484f58; }
+    @keyframes pulse-ring { 0% { transform: scale(1); opacity: 0.8; } 100% { transform: scale(2.5); opacity: 0; } }
+    .status-pulse::after { content: ''; position: absolute; inset: -2px; border-radius: 50%; border: 1px solid currentColor; animation: pulse-ring 2s ease-out infinite; }
+  </style>
+</head>
+<body class="bg-app-bg text-app-text font-sans antialiased min-h-screen flex flex-col selection:bg-app-emerald selection:text-white">
+<!-- 1. HEADER -->
+<header class="h-14 border-b border-app-border bg-app-card px-5 flex items-center justify-between sticky top-0 z-30">
+<div class="flex items-center space-x-3">
+<div class="w-8 h-8 rounded border border-app-border bg-app-subcard flex items-center justify-center text-app-emerald-glow">
+<span class="material-symbols-outlined text-[18px]">terminal</span>
+</div>
+<div>
+<div class="flex items-center space-x-2">
+<span class="font-display font-bold tracking-tight text-app-heading text-[15px]">MODELVAULT</span>
+<span class="text-app-border">|</span>
+<span class="font-display font-medium text-app-heading text-[14px]">Client Console</span>
+</div>
+<div class="text-[11px] text-app-muted font-mono leading-none">Protected API Client (Laptop 2)</div>
+</div>
+</div>
+<!-- Right: Connection Status -->
+<div class="flex items-center space-x-4 font-mono text-xs">
+<div class="flex items-center space-x-1.5 px-2.5 py-1 rounded border text-xs" id="conn-badge">
+<span class="w-2 h-2 rounded-full bg-app-muted" id="conn-dot"></span>
+<span class="font-medium" id="conn-text">Disconnected</span>
+</div>
+</div>
+</header>
+<!-- MAIN WORKSPACE -->
+<main class="flex-1 p-4 lg:p-6 space-y-5 max-w-[1520px] w-full mx-auto">
+
+<!-- SERVER URL CONFIG BAR -->
+<div class="flex items-center space-x-2 bg-app-card border border-app-border rounded-lg px-4 py-2.5">
+<span class="material-symbols-outlined text-app-muted">link</span>
+<span class="font-mono text-xs text-app-muted">SERVER:</span>
+<input id="server-url" type="text" value="http://localhost:8000"
+  class="flex-1 bg-app-subcard border border-app-border rounded px-3 py-1.5 font-mono text-xs text-app-heading focus:outline-none focus:border-app-cyan transition"
+  placeholder="http://192.168.X.X:8000" />
+<button onclick="connectToServer()" class="px-3 py-1.5 bg-app-emerald hover:bg-app-emerald-glow text-white font-mono font-semibold text-xs rounded transition flex items-center space-x-1.5">
+<span class="material-symbols-outlined text-[14px]">power_settings_new</span>
+<span>CONNECT</span>
+</button>
+</div>
+
+<!-- UPPER SECTION: TWO COLUMNS -->
+<div class="grid grid-cols-1 lg:grid-cols-12 gap-5 items-start">
+<!-- LEFT COLUMN: API REQUEST BUILDER (7 Cols) -->
+<section class="lg:col-span-7 bg-app-card border border-app-border rounded-lg shadow-sm flex flex-col">
+<div class="px-4 py-3 border-b border-app-border flex items-center justify-between bg-app-card/60">
+<div class="flex items-center space-x-2.5">
+<span class="material-symbols-outlined text-app-muted">tune</span>
+<h2 class="font-display font-semibold text-sm tracking-wide text-app-heading uppercase">API Request</h2>
+<span class="text-[11px] font-mono text-app-muted">8 Engine Features</span>
+</div>
+<!-- Mode Toggle -->
+<div class="flex items-center space-x-1.5 bg-app-subcard p-1 rounded border border-app-border text-xs font-mono">
+<span class="text-[11px] text-app-muted px-1">Mode:</span>
+<button class="px-2.5 py-0.5 rounded text-xs transition bg-app-card text-app-emerald-glow font-medium border border-app-border shadow-xs" id="mode-normal-btn" onclick="setDemoMode('normal')">
+              Normal User
+            </button>
+<button class="px-2.5 py-0.5 rounded text-xs transition text-app-muted hover:text-app-heading" id="mode-attack-btn" onclick="setDemoMode('attack')">
+              Extraction Attack
+            </button>
+</div>
+</div>
+<div class="p-4 space-y-4">
+<!-- Method & Endpoint Bar -->
+<div class="flex items-center space-x-2">
+<span class="px-2.5 py-1.5 rounded bg-app-subcard text-app-emerald-glow font-mono font-bold text-xs border border-app-border">POST</span>
+<div class="flex-1 flex items-center bg-app-subcard border border-app-border rounded px-3 py-1.5 focus-within:border-app-muted transition">
+<span class="font-mono text-xs text-app-heading flex-1" id="endpoint-display">http://localhost:8000/predict</span>
+</div>
+</div>
+<!-- Attack Settings Bar (hidden by default) -->
+<div class="hidden p-2.5 rounded bg-app-crimson-bg border border-app-crimson/30 flex-wrap items-center justify-between gap-2 text-xs font-mono" id="attack-settings-bar">
+<div class="flex items-center space-x-3">
+<div class="flex items-center space-x-1 text-app-crimson font-medium">
+<span class="material-symbols-outlined">bolt</span>
+<span>ATTACK ENGAGED:</span>
+</div>
+<div class="flex items-center space-x-1">
+<span class="text-app-muted">Queries:</span>
+<input type="number" id="attack-count" value="25" min="5" max="100" class="w-14 bg-app-card px-1.5 py-0.5 rounded border border-app-border text-app-heading font-semibold text-center text-xs" />
+</div>
+<div class="flex items-center space-x-1">
+<span class="text-app-muted">Delay:</span>
+<input type="number" id="attack-delay" value="150" min="50" max="2000" step="50" class="w-16 bg-app-card px-1.5 py-0.5 rounded border border-app-border text-app-heading font-semibold text-center text-xs" />
+<span class="text-app-muted">ms</span>
+</div>
+</div>
+<button class="px-2.5 py-1 bg-app-crimson hover:bg-red-500 text-white font-medium rounded text-[11px] transition flex items-center space-x-1" id="attack-trigger-btn" onclick="triggerAttackBurst()">
+<span class="material-symbols-outlined text-[14px]">play_arrow</span>
+<span id="attack-trigger-text">DISPATCH BURST</span>
+</button>
+</div>
+<!-- Feature Inputs Grid (8 named features, 2x4 grid) -->
+<div>
+<div class="flex justify-between items-center mb-2">
+<label class="font-mono text-xs font-medium text-app-muted uppercase tracking-wider">Engine Features (ARGUS Input)</label>
+</div>
+<div class="grid grid-cols-2 md:grid-cols-4 gap-2.5" id="feature-grid"></div>
+</div>
+<!-- Action Controls & JSON Preview -->
+<div class="grid grid-cols-1 md:grid-cols-12 gap-3 pt-1">
+<div class="md:col-span-4 flex flex-col justify-between space-y-2">
+<button class="w-full h-10 bg-app-emerald hover:bg-app-emerald-glow text-white font-mono font-semibold text-xs tracking-wider rounded transition flex items-center justify-center space-x-2 shadow-sm active:scale-[0.99]" id="btn-send" onclick="sendApiRequest()">
+<span class="material-symbols-outlined text-[16px]">send</span>
+<span>SEND REQUEST</span>
+</button>
+<div class="grid grid-cols-2 gap-2">
+<button class="h-8 bg-app-subcard hover:bg-app-hover text-app-text font-mono text-xs rounded border border-app-border transition flex items-center justify-center space-x-1" onclick="randomizeInputs()">
+<span class="material-symbols-outlined text-[14px]">shuffle</span>
+<span>RANDOM</span>
+</button>
+<button class="h-8 bg-app-subcard hover:bg-app-hover text-app-muted hover:text-app-text font-mono text-xs rounded border border-app-border transition flex items-center justify-center" onclick="resetInputs()">
+<span>RESET</span>
+</button>
+</div>
+</div>
+<div class="md:col-span-8 bg-app-subcard border border-app-border rounded p-2.5 flex flex-col">
+<div class="flex justify-between items-center text-[10px] font-mono text-app-muted border-b border-app-border/70 pb-1 mb-1.5">
+<span>PAYLOAD (application/json)</span>
+<span class="text-app-emerald-glow">valid</span>
+</div>
+<pre class="font-mono text-[11px] text-app-text overflow-x-auto select-all leading-tight" id="json-request-preview">{}</pre>
+</div>
+</div>
+</div>
+</section>
+<!-- RIGHT COLUMN: ARGUS RESPONSE -->
+<section class="lg:col-span-5 bg-app-card border border-app-border rounded-lg shadow-sm flex flex-col">
+<div class="px-4 py-3 border-b border-app-border flex items-center justify-between bg-app-card/60">
+<div class="flex items-center space-x-2.5">
+<span class="material-symbols-outlined text-app-muted">query_stats</span>
+<h2 class="font-display font-semibold text-sm tracking-wide text-app-heading uppercase">Argus Response</h2>
+</div>
+<div class="flex items-center space-x-2 text-[11px] font-mono">
+<span class="text-app-muted">LATENCY:</span>
+<span class="text-app-heading font-semibold" id="res-latency">— ms</span>
+</div>
+</div>
+<div class="p-4 space-y-4">
+<!-- Central Prediction Display -->
+<div class="bg-app-subcard border border-app-border rounded-lg p-5 flex flex-col items-center justify-center text-center transition-all" id="prediction-hero-card">
+<span class="text-[10px] font-mono uppercase tracking-widest text-app-muted mb-1">INFERENCE RESULT</span>
+<div class="px-6 py-2 my-1 rounded border-2 border-app-border bg-app-card text-app-muted font-display font-bold text-2xl tracking-wider" id="prediction-badge">
+              WAITING
+            </div>
+<div class="mt-2 flex items-center space-x-2 font-mono text-xs">
+<span class="text-app-muted">Confidence:</span>
+<span class="text-app-heading font-bold text-sm" id="confidence-text">—</span>
+</div>
+<div class="w-48 bg-app-card h-1.5 rounded-full mt-2 overflow-hidden border border-app-border">
+<div class="bg-app-muted h-full transition-all duration-300" id="confidence-meter-bar" style="width: 0%;"></div>
+</div>
+</div>
+<!-- Security Clearance -->
+<div class="p-3.5 rounded-lg border border-app-border bg-app-subcard space-y-2 transition-all" id="security-clearance-box">
+<div class="flex items-center justify-between">
+<span class="font-mono text-xs font-semibold text-app-muted uppercase">Security Clearance</span>
+<span class="px-2.5 py-0.5 rounded text-xs font-mono font-bold bg-app-card text-app-muted border border-app-border flex items-center space-x-1" id="verdict-pill">
+<span id="verdict-pill-text">AWAITING</span>
+</span>
+</div>
+<div class="text-xs font-mono text-app-muted leading-relaxed" id="verdict-reason-block">
+              Send a request to see the security verdict.
+            </div>
+</div>
+<!-- JSON Response View -->
+<div class="bg-app-subcard border border-app-border rounded p-2.5">
+<div class="flex justify-between items-center text-[10px] font-mono text-app-muted border-b border-app-border/70 pb-1 mb-1.5">
+<span>RESPONSE JSON</span>
+<span id="res-status-code" class="text-app-muted">—</span>
+</div>
+<pre class="font-mono text-[11px] text-app-text select-all leading-snug max-h-40 overflow-y-auto" id="json-response-preview">// Send a request to see the response</pre>
+</div>
+</div>
+</section>
+</div>
+<!-- LIVE REQUEST STREAM -->
+<section class="bg-app-card border border-app-border rounded-lg shadow-sm overflow-hidden flex flex-col">
+<div class="px-4 py-3 border-b border-app-border flex items-center justify-between bg-app-card/60">
+<div class="flex items-center space-x-2.5">
+<span class="material-symbols-outlined text-app-muted">format_list_bulleted</span>
+<h2 class="font-display font-semibold text-sm tracking-wide text-app-heading uppercase">Live Request Stream</h2>
+<span class="text-[11px] font-mono text-app-muted" id="stream-count-badge">0 events logged</span>
+</div>
+<button class="px-2 py-1 text-xs font-mono text-app-muted hover:text-app-heading rounded bg-app-subcard border border-app-border hover:bg-app-hover transition" onclick="clearStream()">Clear</button>
+</div>
+<div class="overflow-x-auto">
+<table class="w-full text-left font-mono text-xs border-collapse">
+<thead class="bg-app-subcard border-b border-app-border text-app-muted text-[11px] uppercase tracking-wider">
+<tr>
+<th class="py-2.5 px-4 font-medium">TIME</th>
+<th class="py-2.5 px-4 font-medium">REQUEST ID</th>
+<th class="py-2.5 px-4 font-medium">PREDICTION</th>
+<th class="py-2.5 px-4 font-medium">CONFIDENCE</th>
+<th class="py-2.5 px-4 font-medium">RISK</th>
+<th class="py-2.5 px-4 font-medium text-right">STATUS</th>
+</tr>
+</thead>
+<tbody class="divide-y divide-app-border/60 text-app-text" id="stream-table-body">
+</tbody>
+</table>
+</div>
+</section>
+</main>
+
+<!-- ═══════════════════════════════════════════════════════ -->
+<!-- JAVASCRIPT: Real API Client Controller                 -->
+<!-- ═══════════════════════════════════════════════════════ -->
+<script>
+// ── Feature definitions (matching ARGUS model) ─────────
+const FEATURES = [
+  { key: 'engine_rpm',       label: 'Engine RPM',     default: 700,  min: 0, max: 3000, step: 10 },
+  { key: 'lub_oil_pressure', label: 'Lub Oil Press',  default: 2.5,  min: 0, max: 10,   step: 0.1 },
+  { key: 'fuel_pressure',    label: 'Fuel Pressure',  default: 11.8, min: 0, max: 25,   step: 0.1 },
+  { key: 'coolant_pressure', label: 'Coolant Press',  default: 3.2,  min: 0, max: 10,   step: 0.1 },
+  { key: 'lub_oil_temp',     label: 'Lub Oil Temp',   default: 80,   min: 0, max: 200,  step: 1 },
+  { key: 'coolant_temp',     label: 'Coolant Temp',   default: 82,   min: 0, max: 200,  step: 1 },
+  { key: 'pressure_ratio',   label: 'Press Ratio',    default: 0.78, min: 0, max: 2,    step: 0.01 },
+  { key: 'temp_diff',        label: 'Temp Diff',      default: -2,   min: -50, max: 50, step: 0.5 },
+];
+
+// ── State ──────────────────────────────────────────────
+let SERVER_URL = 'http://localhost:8000';
+let currentFeatures = {};
+let currentMode = 'normal';
+let eventCount = 0;
+let attackRunning = false;
+
+// ── Initialization ─────────────────────────────────────
+window.addEventListener('DOMContentLoaded', () => {
+  // Check URL params for server
+  const params = new URLSearchParams(window.location.search);
+  if (params.get('server')) {
+    SERVER_URL = params.get('server');
+    document.getElementById('server-url').value = SERVER_URL;
+  }
+  resetInputs();
+  initFeatureGrid();
+  connectToServer();
+});
+
+// ── Server Connection ──────────────────────────────────
+async function connectToServer() {
+  SERVER_URL = document.getElementById('server-url').value.replace(/\/$/, '');
+  document.getElementById('endpoint-display').textContent = `${SERVER_URL}/predict`;
+
+  try {
+    const resp = await fetch(`${SERVER_URL}/health`, { signal: AbortSignal.timeout(5000) });
+    const data = await resp.json();
+
+    if (data.api === 'healthy') {
+      setConnStatus(true, data.model_loaded);
+    } else {
+      setConnStatus(false);
+    }
+  } catch (e) {
+    setConnStatus(false);
+  }
+}
+
+function setConnStatus(connected, modelLoaded = false) {
+  const badge = document.getElementById('conn-badge');
+  const dot = document.getElementById('conn-dot');
+  const text = document.getElementById('conn-text');
+
+  if (connected) {
+    badge.className = 'flex items-center space-x-1.5 px-2.5 py-1 rounded bg-emerald-950/40 border border-emerald-900/60 text-app-emerald-glow';
+    dot.className = 'w-2 h-2 rounded-full bg-app-emerald-glow animate-pulse';
+    text.textContent = modelLoaded ? 'ModelVault Connected' : 'Connected (No Model)';
+  } else {
+    badge.className = 'flex items-center space-x-1.5 px-2.5 py-1 rounded bg-red-950/40 border border-red-900/60 text-app-crimson';
+    dot.className = 'w-2 h-2 rounded-full bg-app-crimson';
+    text.textContent = 'Disconnected';
+  }
+}
+
+// ── Feature Grid ───────────────────────────────────────
+function initFeatureGrid() {
+  const grid = document.getElementById('feature-grid');
+  grid.innerHTML = '';
+  FEATURES.forEach((f, i) => {
+    const val = currentFeatures[f.key];
+    const box = document.createElement('div');
+    box.className = 'bg-app-subcard border border-app-border rounded p-2 focus-within:border-app-emerald transition';
+    box.innerHTML = `
+      <div class="flex items-center justify-between text-[10px] font-mono text-app-muted mb-1">
+        <span class="uppercase">${f.label}</span>
+        <span class="text-app-border">${f.key}</span>
+      </div>
+      <input
+        type="number"
+        step="${f.step}"
+        min="${f.min}"
+        max="${f.max}"
+        value="${val}"
+        id="input-${f.key}"
+        oninput="handleFeatureChange('${f.key}', this.value)"
+        class="w-full bg-transparent text-app-heading font-mono text-sm font-semibold focus:outline-none border-0 p-0 text-left"
+      />
+    `;
+    grid.appendChild(box);
+  });
+  updateJsonPreview();
+}
+
+function handleFeatureChange(key, val) {
+  const parsed = parseFloat(val);
+  currentFeatures[key] = isNaN(parsed) ? 0 : parsed;
+  updateJsonPreview();
+}
+
+function updateJsonPreview() {
+  document.getElementById('json-request-preview').textContent = JSON.stringify(currentFeatures, null, 2);
+}
+
+function randomizeInputs() {
+  FEATURES.forEach(f => {
+    const range = f.max - f.min;
+    currentFeatures[f.key] = +(f.min + Math.random() * range).toFixed(2);
+    const el = document.getElementById(`input-${f.key}`);
+    if (el) el.value = currentFeatures[f.key];
+  });
+  updateJsonPreview();
+}
+
+function resetInputs() {
+  FEATURES.forEach(f => {
+    currentFeatures[f.key] = f.default;
+    const el = document.getElementById(`input-${f.key}`);
+    if (el) el.value = f.default;
+  });
+  updateJsonPreview();
+}
+
+// ── Mode Selector ──────────────────────────────────────
+function setDemoMode(mode) {
+  currentMode = mode;
+  const normalBtn = document.getElementById('mode-normal-btn');
+  const attackBtn = document.getElementById('mode-attack-btn');
+  const attackBar = document.getElementById('attack-settings-bar');
+
+  if (mode === 'normal') {
+    normalBtn.className = 'px-2.5 py-0.5 rounded text-xs transition bg-app-card text-app-emerald-glow font-medium border border-app-border shadow-xs';
+    attackBtn.className = 'px-2.5 py-0.5 rounded text-xs transition text-app-muted hover:text-app-heading';
+    attackBar.classList.add('hidden');
+  } else {
+    attackBtn.className = 'px-2.5 py-0.5 rounded text-xs transition bg-app-crimson/20 text-app-crimson font-medium border border-app-crimson/40 shadow-xs';
+    normalBtn.className = 'px-2.5 py-0.5 rounded text-xs transition text-app-muted hover:text-app-heading';
+    attackBar.classList.remove('hidden');
+  }
+}
+
+// ── Send Real API Request ──────────────────────────────
+async function sendApiRequest() {
+  const btn = document.getElementById('btn-send');
+  btn.classList.add('opacity-75', 'cursor-not-allowed');
+  btn.innerHTML = '<span class="material-symbols-outlined text-[16px] animate-spin">sync</span><span>DISPATCHING...</span>';
+
+  const startTime = performance.now();
+
+  try {
+    const resp = await fetch(`${SERVER_URL}/predict`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(currentFeatures),
+    });
+
+    const latency = Math.round(performance.now() - startTime);
+    document.getElementById('res-latency').textContent = `${latency} ms`;
+
+    const data = await resp.json();
+
+    // Update response display
+    updateResponseDisplay(data, resp.status);
+
+    // Add to stream
+    addToStream(data);
+
+  } catch (e) {
+    document.getElementById('res-latency').textContent = 'ERR';
+    document.getElementById('res-status-code').textContent = 'ERROR';
+    document.getElementById('res-status-code').className = 'text-app-crimson';
+    document.getElementById('json-response-preview').textContent = JSON.stringify({ error: e.message }, null, 2);
+
+    setConnStatus(false);
+  } finally {
+    btn.classList.remove('opacity-75', 'cursor-not-allowed');
+    btn.innerHTML = '<span class="material-symbols-outlined text-[16px]">send</span><span>SEND REQUEST</span>';
+  }
+}
+
+// ── Update Response Display ────────────────────────────
+function updateResponseDisplay(data, httpStatus) {
+  const predBadge = document.getElementById('prediction-badge');
+  const confText = document.getElementById('confidence-text');
+  const confBar = document.getElementById('confidence-meter-bar');
+  const verdictPill = document.getElementById('verdict-pill');
+  const verdictPillText = document.getElementById('verdict-pill-text');
+  const verdictReason = document.getElementById('verdict-reason-block');
+  const clearanceBox = document.getElementById('security-clearance-box');
+  const heroCard = document.getElementById('prediction-hero-card');
+  const jsonRes = document.getElementById('json-response-preview');
+  const statusCode = document.getElementById('res-status-code');
+
+  const security = data.security || {};
+  const action = security.action || 'UNKNOWN';
+  const risk = security.risk_score || 0;
+  const reasons = security.reasons || [];
+
+  jsonRes.textContent = JSON.stringify(data, null, 2);
+
+  if (action === 'BLOCK' || action === 'RESTRICT') {
+    // Blocked / Restricted
+    heroCard.className = 'bg-app-subcard border border-app-crimson/40 rounded-lg p-5 flex flex-col items-center justify-center text-center transition-all';
+    predBadge.className = 'px-6 py-2 my-1 rounded border-2 border-app-crimson/60 bg-red-950/30 text-app-crimson font-display font-bold text-2xl tracking-wider';
+    predBadge.textContent = 'SUPPRESSED';
+    confText.textContent = data.confidence ? `${(data.confidence * 100).toFixed(1)}%` : '—';
+    confBar.className = 'bg-app-crimson h-full transition-all duration-300';
+    confBar.style.width = '100%';
+
+    clearanceBox.className = 'p-3.5 rounded-lg border border-app-crimson/40 bg-red-950/20 space-y-2 transition-all';
+    verdictPill.className = 'px-2.5 py-0.5 rounded text-xs font-mono font-bold bg-red-900/50 text-app-crimson border border-app-crimson/50 flex items-center space-x-1';
+    verdictPillText.textContent = `✕ ${action}`;
+    verdictReason.innerHTML = `<span class="text-app-crimson font-medium">Reason:</span> ${reasons[0] || 'Suspicious activity detected'}. <span class="font-bold text-app-heading">Risk: ${Math.round(risk)} / 100</span>.`;
+
+    statusCode.textContent = action === 'BLOCK' ? '403 BLOCKED' : '403 RESTRICTED';
+    statusCode.className = 'text-app-crimson';
+
+  } else if (action === 'RATE_LIMIT') {
+    // Rate limited but still allowed
+    heroCard.className = 'bg-app-subcard border border-app-amber/30 rounded-lg p-5 flex flex-col items-center justify-center text-center transition-all';
+    predBadge.className = 'px-6 py-2 my-1 rounded border-2 border-app-amber/50 bg-amber-950/20 text-app-amber font-display font-bold text-2xl tracking-wider';
+    predBadge.textContent = data.prediction || 'UNKNOWN';
+    const conf = data.confidence ? (data.confidence * 100).toFixed(1) : '—';
+    confText.textContent = `${conf}%`;
+    confBar.className = 'bg-app-amber h-full transition-all duration-300';
+    confBar.style.width = `${data.confidence ? data.confidence * 100 : 0}%`;
+
+    clearanceBox.className = 'p-3.5 rounded-lg border border-app-amber/30 bg-amber-950/20 space-y-2 transition-all';
+    verdictPill.className = 'px-2.5 py-0.5 rounded text-xs font-mono font-bold bg-amber-900/50 text-app-amber border border-app-amber/40 flex items-center space-x-1';
+    verdictPillText.textContent = '⚠ RATE LIMITED';
+    verdictReason.innerHTML = `<span class="text-app-amber font-medium">Warning:</span> ${reasons[0] || 'Elevated activity detected'}. <span class="font-bold text-app-heading">Risk: ${Math.round(risk)} / 100</span>.`;
+
+    statusCode.textContent = '200 OK';
+    statusCode.className = 'text-app-amber';
+
+  } else {
+    // Allowed
+    heroCard.className = 'bg-app-subcard border border-app-border rounded-lg p-5 flex flex-col items-center justify-center text-center transition-all';
+    predBadge.className = 'px-6 py-2 my-1 rounded border-2 border-app-emerald/50 bg-emerald-950/20 text-app-emerald-glow font-display font-bold text-2xl tracking-wider';
+    predBadge.textContent = data.prediction || 'UNKNOWN';
+    const conf = data.confidence ? (data.confidence * 100).toFixed(1) : '—';
+    confText.textContent = `${conf}%`;
+    confBar.className = 'bg-app-emerald h-full transition-all duration-300';
+    confBar.style.width = `${data.confidence ? data.confidence * 100 : 0}%`;
+
+    clearanceBox.className = 'p-3.5 rounded-lg border border-app-emerald/30 bg-emerald-950/20 space-y-2 transition-all';
+    verdictPill.className = 'px-2.5 py-0.5 rounded text-xs font-mono font-bold bg-emerald-900/50 text-app-emerald-glow border border-app-emerald/40 flex items-center space-x-1';
+    verdictPillText.textContent = '✓ ALLOWED';
+    verdictReason.innerHTML = `<span class="text-app-emerald-glow font-medium">Verdict:</span> ${reasons[0] || 'Query pattern normal'}. <span class="text-app-muted">Risk: ${Math.round(risk)} / 100</span>.`;
+
+    statusCode.textContent = '200 OK';
+    statusCode.className = 'text-app-emerald-glow';
+  }
+}
+
+// ── Add to Live Stream ─────────────────────────────────
+function addToStream(data) {
+  const security = data.security || {};
+  const action = security.action || '?';
+  const risk = Math.round(security.risk_score || 0);
+  const reqId = security.request_id ? security.request_id.substring(0, 8) : '?';
+  const prediction = data.prediction || (action === 'BLOCK' || action === 'RESTRICT' ? 'SUPPRESSED' : '?');
+  const confidence = data.confidence ? `${(data.confidence * 100).toFixed(1)}%` : '—';
+  const now = new Date();
+  const timeStr = `${String(now.getHours()).padStart(2, '0')}:${String(now.getMinutes()).padStart(2, '0')}:${String(now.getSeconds()).padStart(2, '0')}`;
+
+  let statusPill = '';
+  if (action === 'BLOCK') {
+    statusPill = '<span class="inline-block px-2 py-0.5 rounded text-[11px] font-semibold bg-red-950/40 text-app-crimson border border-app-crimson/30">BLOCKED</span>';
+  } else if (action === 'RESTRICT') {
+    statusPill = '<span class="inline-block px-2 py-0.5 rounded text-[11px] font-semibold bg-orange-950/40 text-orange-400 border border-orange-500/30">RESTRICTED</span>';
+  } else if (action === 'RATE_LIMIT') {
+    statusPill = '<span class="inline-block px-2 py-0.5 rounded text-[11px] font-semibold bg-amber-950/40 text-app-amber border border-app-amber/30">RATE LIMITED</span>';
+  } else {
+    statusPill = '<span class="inline-block px-2 py-0.5 rounded text-[11px] font-semibold bg-emerald-950/40 text-app-emerald-glow border border-app-emerald/30">ALLOWED</span>';
+  }
+
+  const tbody = document.getElementById('stream-table-body');
+  const row = document.createElement('tr');
+  row.className = 'hover:bg-app-hover/50 transition';
+  row.innerHTML = `
+    <td class="py-2 px-4 text-app-muted font-normal">${timeStr}</td>
+    <td class="py-2 px-4 text-app-heading font-medium">${reqId}</td>
+    <td class="py-2 px-4">${prediction}</td>
+    <td class="py-2 px-4">${confidence}</td>
+    <td class="py-2 px-4">${risk}</td>
+    <td class="py-2 px-4 text-right">${statusPill}</td>
+  `;
+  tbody.insertBefore(row, tbody.firstChild);
+
+  eventCount++;
+  document.getElementById('stream-count-badge').textContent = `${eventCount} events logged`;
+}
+
+// ── Attack Burst ───────────────────────────────────────
+async function triggerAttackBurst() {
+  if (attackRunning) return;
+  attackRunning = true;
+
+  const btn = document.getElementById('attack-trigger-btn');
+  const textEl = document.getElementById('attack-trigger-text');
+  btn.disabled = true;
+  btn.classList.add('opacity-60');
+
+  const numQueries = parseInt(document.getElementById('attack-count').value) || 25;
+  const delayMs = parseInt(document.getElementById('attack-delay').value) || 150;
+
+  const base = { ...currentFeatures };
+
+  for (let i = 0; i < numQueries; i++) {
+    textEl.textContent = `ATTACKING ${i + 1}/${numQueries}`;
+
+    // Systematic perturbation
+    const feats = { ...base };
+    feats.engine_rpm = (base.engine_rpm || 700) + i * 5;
+    feats.fuel_pressure = (base.fuel_pressure || 11.8) + i * 0.1;
+    feats.lub_oil_temp = (base.lub_oil_temp || 80) + i * 0.5;
+
+    // Update UI to show current attack features
+    for (const [key, val] of Object.entries(feats)) {
+      currentFeatures[key] = val;
+      const el = document.getElementById(`input-${key}`);
+      if (el) el.value = +val.toFixed(2);
+    }
+    updateJsonPreview();
+
+    await sendApiRequest();
+    await new Promise(r => setTimeout(r, delayMs));
+  }
+
+  textEl.textContent = 'DISPATCH BURST';
+  btn.disabled = false;
+  btn.classList.remove('opacity-60');
+  attackRunning = false;
+}
+
+function clearStream() {
+  document.getElementById('stream-table-body').innerHTML = '';
+  eventCount = 0;
+  document.getElementById('stream-count-badge').textContent = '0 events logged';
+}
+</script>
+</body></html>
