@@ -139,7 +139,7 @@ def predict(data: EngineInput, request: Request):
         confidence=confidence,
         client_id=client_id,
     )
-
+  
     # --------------------------------------------------
     # SECURITY DECISIONS
     # --------------------------------------------------
