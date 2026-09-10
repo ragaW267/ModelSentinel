@@ -1,5 +1,7 @@
 # ModelVault — AI Model Extraction Defense
 
+`Still under development`
+
 **An adaptive AI security middleware that detects and prevents model extraction attacks by analyzing API query behavior, input-space exploration, and decision-boundary probing.**
 
 ModelVault protects the **ARGUS** predictive maintenance model (Random Forest classifier) from extraction attacks using a multi-signal detection engine with 5 behavioral analysis components, risk fusion, and adaptive security policies.
