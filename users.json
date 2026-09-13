@@ -1,0 +1,14 @@
+{
+  "admin": {
+    "id": "83d8e638-df22-4629-830e-61dad4c19c70",
+    "username": "admin",
+    "password_hash": "03ac674216f3e15c761ee1a5e255f067953623c8b388b4459e13f978d7c846f4",
+    "created_at": 1789307629.8350067
+  },
+  "john doe": {
+    "id": "4aebccf6-3133-45a8-8466-e976d38ac9bd",
+    "username": "john doe",
+    "password_hash": "8776f108e247ab1e2b323042c049c266407c81fbad41bde1e8dfc1bb66fd267e",
+    "created_at": 1789307823.85438
+  }
+}

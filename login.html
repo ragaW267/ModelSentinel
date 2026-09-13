@@ -1,0 +1,129 @@
+﻿<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>ModelVault — Login</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com"/>
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin/>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet"/>
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+    :root {
+      --bg:#0d1117; --card:#161b22; --border:#30363d; --muted:#8b949e;
+      --text:#c9d1d9; --heading:#f0f6fc; --green:#2ea043; --green-glow:#3fb950;
+      --red:#f85149; --amber:#d29922; --blue:#58a6ff;
+    }
+    body { min-height:100vh; background:var(--bg); color:var(--text); font-family:'Inter',sans-serif;
+      display:flex; align-items:center; justify-content:center; padding:1rem; }
+    .card { width:100%; max-width:380px; background:var(--card); border:1px solid var(--border); border-radius:10px; overflow:hidden; }
+    .logo-bar { padding:1.5rem 1.75rem 1.25rem; border-bottom:1px solid var(--border); display:flex; align-items:center; gap:0.65rem; }
+    .logo-icon { width:28px; height:28px; background:var(--green); border-radius:6px; display:flex; align-items:center; justify-content:center; font-size:14px; }
+    .logo-text { font-family:'JetBrains Mono',monospace; font-size:0.8rem; font-weight:500; color:var(--heading); letter-spacing:0.06em; }
+    .logo-sub { font-size:0.65rem; color:var(--muted); letter-spacing:0.04em; }
+    .tabs { display:flex; border-bottom:1px solid var(--border); }
+    .tab { flex:1; padding:0.7rem; background:none; border:none; cursor:pointer; font-family:'Inter',sans-serif;
+      font-size:0.78rem; font-weight:500; color:var(--muted); transition:color 0.15s; border-bottom:2px solid transparent; }
+    .tab.active { color:var(--green-glow); border-bottom-color:var(--green-glow); }
+    .form-body { padding:1.5rem 1.75rem; }
+    .field { margin-bottom:1rem; }
+    .field label { display:block; font-size:0.72rem; color:var(--muted); margin-bottom:0.35rem; letter-spacing:0.03em; text-transform:uppercase; }
+    .field input { width:100%; background:#0e131a; border:1px solid var(--border); border-radius:6px;
+      padding:0.55rem 0.75rem; font-size:0.85rem; font-family:'Inter',sans-serif; color:var(--heading); outline:none; transition:border-color 0.15s; }
+    .field input:focus { border-color:var(--blue); }
+    .field input::placeholder { color:#484f58; }
+    .btn { width:100%; padding:0.6rem; background:var(--green); color:#fff; border:none; border-radius:6px;
+      font-size:0.82rem; font-weight:600; font-family:'Inter',sans-serif; cursor:pointer; letter-spacing:0.04em;
+      margin-top:0.25rem; transition:background 0.15s,opacity 0.15s; }
+    .btn:hover { background:var(--green-glow); }
+    .btn:disabled { opacity:0.5; cursor:not-allowed; }
+    .msg { margin-top:0.9rem; padding:0.55rem 0.75rem; border-radius:6px; font-size:0.78rem; display:none; }
+    .msg.success { background:rgba(46,160,67,0.12); border:1px solid rgba(46,160,67,0.35); color:var(--green-glow); }
+    .msg.error { background:rgba(248,81,73,0.12); border:1px solid rgba(248,81,73,0.35); color:var(--red); }
+    .msg.show { display:block; }
+    .server-row { padding:0.65rem 1.75rem; border-top:1px solid var(--border); display:flex; align-items:center; gap:0.5rem; }
+    .server-row label { font-size:0.68rem; color:var(--muted); white-space:nowrap; }
+    .server-row input { flex:1; background:transparent; border:none; color:var(--muted);
+      font-family:'JetBrains Mono',monospace; font-size:0.68rem; outline:none; }
+  </style>
+</head>
+<body>
+<div class="card">
+  <div class="logo-bar">
+    <div class="logo-icon">🔐</div>
+    <div>
+      <div class="logo-text">MODELVAULT</div>
+      <div class="logo-sub">Security Gateway</div>
+    </div>
+  </div>
+  <div class="tabs">
+    <button class="tab active" id="tab-login" onclick="switchTab('login')">Login</button>
+    <button class="tab" id="tab-register" onclick="switchTab('register')">Register</button>
+  </div>
+  <div class="form-body">
+    <div class="field">
+      <label for="username">Username</label>
+      <input id="username" type="text" placeholder="e.g. admin" autocomplete="username"/>
+    </div>
+    <div class="field">
+      <label for="password">Password</label>
+      <input id="password" type="password" placeholder="••••••••" autocomplete="current-password"/>
+    </div>
+    <button class="btn" id="submit-btn" onclick="submit()">LOGIN</button>
+    <div class="msg" id="msg"></div>
+  </div>
+  <div class="server-row">
+    <label>API</label>
+    <input id="server-url" type="text" value="http://localhost:8000" spellcheck="false"/>
+  </div>
+</div>
+<script>
+  let mode = 'login';
+  const params = new URLSearchParams(window.location.search);
+  if (params.get('server')) document.getElementById('server-url').value = params.get('server');
+  function switchTab(t) {
+    mode = t;
+    document.getElementById('tab-login').classList.toggle('active', t==='login');
+    document.getElementById('tab-register').classList.toggle('active', t==='register');
+    document.getElementById('submit-btn').textContent = t==='login' ? 'LOGIN' : 'CREATE ACCOUNT';
+    clearMsg();
+  }
+  function showMsg(text, type) { const el=document.getElementById('msg'); el.textContent=text; el.className='msg show '+type; }
+  function clearMsg() { document.getElementById('msg').className='msg'; }
+  async function submit() {
+    clearMsg();
+    const username = document.getElementById('username').value.trim();
+    const password = document.getElementById('password').value;
+    const serverUrl = document.getElementById('server-url').value.replace(/\/$/, '');
+    const btn = document.getElementById('submit-btn');
+    if (!username || !password) { showMsg('Please enter username and password.', 'error'); return; }
+    const endpoint = mode==='login' ? '/auth/login' : '/auth/register';
+    btn.disabled = true; btn.textContent = 'PLEASE WAIT...';
+    try {
+      const resp = await fetch(serverUrl+endpoint, {
+        method:'POST', headers:{'Content-Type':'application/json'},
+        body: JSON.stringify({username, password}),
+      });
+      const data = await resp.json();
+      if (resp.ok) {
+        showMsg(data.message, 'success');
+        if (mode==='login') {
+          localStorage.setItem('mv_user', JSON.stringify(data.user));
+          setTimeout(() => { window.location.href='client-ui/index.html?server='+encodeURIComponent(serverUrl); }, 900);
+        } else {
+          setTimeout(() => switchTab('login'), 1200);
+        }
+      } else {
+        showMsg(data.detail || 'Something went wrong.', 'error');
+      }
+    } catch(e) {
+      showMsg('Cannot reach server at '+serverUrl, 'error');
+    } finally {
+      btn.disabled = false;
+      btn.textContent = mode==='login' ? 'LOGIN' : 'CREATE ACCOUNT';
+    }
+  }
+  document.addEventListener('keydown', e => { if(e.key==='Enter') submit(); });
+</script>
+</body>
+</html>
