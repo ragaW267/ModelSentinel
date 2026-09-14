@@ -344,6 +344,7 @@ def _hash_pw(password: str) -> str:
 class AuthPayload(BaseModel):
     username: str
     password: str
+    role: str = "client"  # 'client' or 'server'
 
 
 @app.post("/auth/register")
@@ -360,6 +361,7 @@ def register(payload: AuthPayload):
     users[uname] = {
         "id": str(uuid.uuid4()),
         "username": uname,
+        "role": payload.role if payload.role in ("client", "server") else "client",
         "password_hash": _hash_pw(payload.password),
         "created_at": time.time(),
     }
@@ -381,6 +383,7 @@ def login(payload: AuthPayload):
         "user": {
             "id": user["id"],
             "username": user["username"],
+            "role": user.get("role", "client"),
         },
         "message": "Login successful.",
     }
